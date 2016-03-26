@@ -3,6 +3,8 @@ package org.dianahep
 import scala.language.implicitConversions
 
 package object histogrammar {
+  type Weighting[DATUM] = Weighted[DATUM] => Double
+
   implicit def toWeighted[DATUM](datum: DATUM) = Weighted(datum)
   implicit def domainToWeighted[DOMAIN, RANGE](f: DOMAIN => RANGE) = {x: Weighted[DOMAIN] => f(x.datum)}
 
@@ -10,7 +12,44 @@ package object histogrammar {
 
   implicit def noWeighting[DATUM] = {x: Weighted[DATUM] => 1.0}
 
-  type Weighting[DATUM] = Weighted[DATUM] => Double
+  implicit class HistogramMethods[DATUM](hist: Binned[DATUM, Count[DATUM]]) {
+    def show = {
+      val minCount = hist.values.map(_.value).min
+      val maxCount = hist.values.map(_.value).max
+      val range = maxCount - minCount
+      val minEdge = if (minCount < 0.0) minCount - 0.1*range else 0.0
+      val maxEdge = maxCount + 0.1*range
+
+      val binWidth = (hist.high - hist.low) / hist.num
+      def sigfigs(x: Double, n: Int) = new java.math.BigDecimal(x).round(new java.math.MathContext(n)).toString
+
+      val prefixValues = hist.values.zipWithIndex map {case (v, i) =>
+        val binlow = sigfigs(i * binWidth + hist.low, 3)
+        val binhigh = sigfigs((i + 1) * binWidth + hist.low, 3)
+        val value = sigfigs(v.value, 4)
+        (binlow, binhigh, value)
+      }
+      val widestBinlow = prefixValues.map(_._1.size).max
+      val widestBinhigh = prefixValues.map(_._2.size).max
+      val widestValue = prefixValues.map(_._3.size).max
+      val formater = s"[%-${widestBinlow}s, %-${widestBinhigh}s) %-${widestValue}s "
+      val prefixWidth = widestBinlow + widestBinhigh + widestValue + 6
+      
+      val width = 80 - prefixWidth
+      val zeroIndex = Math.round(width * (0.0 - minEdge) / (maxEdge - minEdge)).toInt
+      val zeroLine1 = " " * prefixWidth + (if (zeroIndex > 0) " " else "") + " " * zeroIndex + "0" + " " * (width - zeroIndex - 10) + " " + f"$maxEdge%10g"
+      val zeroLine2 = " " * prefixWidth + (if (zeroIndex > 0) "+" else "") + "-" * zeroIndex + "+" + "-" * (width - zeroIndex - 1) + "-" + "+"
+
+      val lines = hist.values zip prefixValues map {case (v, (binlow, binhigh, value)) =>
+        val peakIndex = Math.round(width * (v.value - minEdge) / (maxEdge - minEdge)).toInt
+        if (peakIndex < zeroIndex)
+          formater.format(binlow, binhigh, value) + (if (zeroIndex > 0) "|" else "") + " " * peakIndex + "*" * (zeroIndex - peakIndex) + "|" + " " * (width - zeroIndex) + "|"
+        else
+          formater.format(binlow, binhigh, value) + (if (zeroIndex > 0) "|" else "") + " " * zeroIndex + "|" + "*" * (peakIndex - zeroIndex) + " " * (width - peakIndex) + "|"
+      }
+      (List(zeroLine1, zeroLine2) ++ lines ++ List(zeroLine2)).mkString("\n")      
+    }
+  }
 }
 
 package histogrammar {
@@ -18,7 +57,7 @@ package histogrammar {
     def *(w: Double): Weighted[DATUM] = copy(weight = weight*w)
   }
 
-  trait Aggregator[SELF, DATUM] {
+  trait Aggregator[DATUM, SELF] {
     def apply(x: Weighted[DATUM]): Unit
     def copy: SELF
     def +(that: SELF): SELF
@@ -30,12 +69,12 @@ package histogrammar {
     override def toString() = s"$name($constructor)($state)"
   }
 
-  trait Container[SELF, DATUM, SUB <: Aggregator[SUB, DATUM]] extends Aggregator[SELF, DATUM]
+  trait Container[DATUM, SELF, SUB <: Aggregator[DATUM, SUB]] extends Aggregator[DATUM, SELF]
 
   class Count[DATUM]
              (val weighting: Weighting[DATUM])
              (var value: Double = 0.0)
-             extends Aggregator[Count[DATUM], DATUM] {
+             extends Aggregator[DATUM, Count[DATUM]] {
     def apply(x: Weighted[DATUM]) {
       val y = x * weighting(x)
       value += y.weight
@@ -50,10 +89,10 @@ package histogrammar {
     def apply[DATUM](implicit weighting: Weighting[DATUM]) = new Count(weighting)()
   }
 
-  class Binned[DATUM, SUB <: Aggregator[SUB, DATUM]]
+  class Binned[DATUM, SUB <: Aggregator[DATUM, SUB]]
               (sub: SUB, val num: Int, val low: Double, val high: Double, val key: Weighted[DATUM] => Double, val weighting: Weighting[DATUM])
               (val values: Vector[SUB] = Vector.fill(num)(sub.copy), val underflow: SUB = sub.copy, val overflow: SUB = sub.copy)
-              extends Container[Binned[DATUM, SUB], DATUM, SUB] {
+              extends Container[DATUM, Binned[DATUM, SUB], SUB] {
     if (low >= high)
       throw new IllegalArgumentException(s"low ($low) must be less than high ($high)")
     if (num < 1)
@@ -97,7 +136,7 @@ package histogrammar {
     def state = s"""Vector(${values.map(_.state).mkString(", ")}), ${underflow.state}, ${overflow.state}"""
   }
   object Binned {
-    def apply[DATUM, SUB <: Aggregator[SUB, DATUM]](sub: SUB, num: Int, low: Double, high: Double, key: Weighted[DATUM] => Double, weighting: Weighting[DATUM] = noWeighting[DATUM]) =
+    def apply[DATUM, SUB <: Aggregator[DATUM, SUB]](sub: SUB, num: Int, low: Double, high: Double, key: Weighted[DATUM] => Double, weighting: Weighting[DATUM] = noWeighting[DATUM]) =
       new Binned[DATUM, SUB](sub, num, low, high, key, weighting)()
   }
 }
