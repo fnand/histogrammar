@@ -5,6 +5,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 
 import org.dianahep.histogrammar._
+import org.dianahep.histogrammar.specialized._
 
 class DefaultSuite extends FlatSpec with Matchers {
   "stuff" must "work" in {
