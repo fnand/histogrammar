@@ -183,7 +183,7 @@ Last released version was 0.2. The following refers to the git master branch.
 
 | Primitive            | Scala | Python  | C       | SQL     | R       | Javascript |
 |:---------------------|:------|:--------|:--------|:--------|:--------|:-----------|
-| Count                | done  | partial |         |         |         |            |
+| Count                | done  | done    |         |         |         |            |
 | Sum                  | done  |         |         |         |         |            |
 | Average              | done  |         |         |         |         |            |
 | Deviate              | done  |         |         |         |         |            |
