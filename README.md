@@ -138,7 +138,7 @@ The last is particularly useful for exploratory analysis: you want to make a plo
 
 ```scala
 val violin_box = Branch(Categorize({d: D => d.group}, value = AdaptivelyBin({d: D => d.value}),
-                        Categorize({d: D => d.group}, value = Quantile({d: D => d.group}))))
+                        Categorize({d: D => d.group}, value = Quantile({d: D => d.value}))))
 ```
 
 ([source: R](http://stackoverflow.com/questions/27012500/how-to-align-violin-plots-with-boxplots))
