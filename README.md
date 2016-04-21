@@ -3,6 +3,8 @@
 ## Quick links to reference documentation
 
   * [Scaladocs for the Scala version](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.package)
+  * [Catalog of primitives](#catalog-of-primitives)
+  * [Current status](#status)
 
 ## What is this and why might I want it?
 
@@ -145,7 +147,7 @@ val violin_box = Branch(Categorize({d: D => d.group}, value = AdaptivelyBin({d: 
 
 ## Histogrammar does not produce graphics
 
-In the discussion above, I included plots from many different plotting packages. Histogrammar is not a plotting package: it aggregates data and passes that to your favorite plotting library. Usually, the aggregation step is more computationally expensive than plotting, so it's frustrating to have to repeat a time-consuming aggregation to change a cosmetic aspect of a plot. Aggregation and graphics must be kept separate.
+In the discussion above, I included plots from many different plotting packages. Histogrammar is not a plotting package: it aggregates data and passes that to your favorite plotter. Usually, the aggregation step is more computationally expensive than plotting, so it's frustrating to have to repeat a time-consuming aggregation to change a cosmetic aspect of a plot. Aggregation and graphics must be kept separate.
 
 Aggregation primitives are also easier to implement than graphics, so Histogrammar's core of primitives will be implemented in many different programming languages with a canonical JSON representation. A dataset aggregated in Scala can be plotted in Python. Most language-specific implementations recognize common patterns, such as bin-count being a one-dimensional histogram, to generate the appropriate plot.
 
@@ -175,7 +177,9 @@ Aggregation primitives are also easier to implement than graphics, so Histogramm
 | Index           | Accumulate any number of containers of the SAME type anonymously in a list. Every one is filled with every input datum. |
 | Branch          | Accumulate containers of DIFFERENT types, indexed by i0 through i9. Every one is filled with every input datum. |
 
-## Status (version 0.2)
+## Status
+
+Last released version was 0.2. The following refers to the git master branch.
 
 | Primitive            | Scala | Python  | C       | SQL     | R       | Javascript |
 |:---------------------|:------|:--------|:--------|:--------|:--------|:-----------|
