@@ -70,7 +70,7 @@ The `Bin` is a container of sub-aggregators, much like `Label`, but its behavior
 val h2d = Bin(numBinsX, lowX, highX, fillX, value = Bin(numBinsY, lowY, highY, fillY, value = Count())
 ```
 
-This aggregator subdivides the space by binning one continuous variable, `X`, and then further subdivides it by binning in `Y`, then it counts. It is a two-dimensional histogram, like both of the following:
+This aggregator subdivides the space by binning one continuous variable, `X`, then further subdivides it by binning `Y`, and then it counts. It is a two-dimensional histogram, like both of the following:
 
 ([left source: matplotlib](http://matplotlib.org/examples/pylab_examples/hist2d_log_demo.html)) ([right source: PAW](http://www.hepl.hiroshima-u.ac.jp/phx/sarupaw_html/hist.html))
 
