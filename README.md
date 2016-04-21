@@ -17,7 +17,7 @@ val all_histograms = Label("px" -> px_histogram, "pt" -> pt_histogram, "cut" -> 
 val final_histogram = rdd.aggregate(all_histograms)(new Increment, new Combine)
 ```
 
-The last line submits the histograms to Spark, which fills independent copies among its worker nodes, combines partial results, and returns the final result for plotting. However, it required very little input from the user. In this example, `rdd` is a dataset of `Muon` objects, which the histograms view in different ways.
+The last line submits the histograms to Spark, which fills independent partial histograms in each of its worker nodes, combines partial results, and returns the final result for plotting. However, it required very little input from the user. In this example, `rdd` is a dataset of `Muon` objects, which the histograms view in different ways.
 
 Most of the code in this snippet is concerned with the binning the histograms and describing how to fill them. The fill rule is given in each histogram's constructor, so that the data analyst doesn't have to maintain code for booking the histograms in one place, filling in another, and (for distributed jobs) combining in yet another place. In a typical analysis with hundreds of histograms, rather than three, this consolidation reduces errors.
 
