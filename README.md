@@ -1,8 +1,8 @@
 # Histogrammar
 
-Histogrammar is a declarative grammar for booking histograms with automatic filling and merging. It simplifies the process of reducing huge, distributed datasets to a form that can be plotted, especially in a functional workflow like Apache Spark.
+Histogrammar is a declarative grammar for booking histograms with automatic filling and merging. It simplifies the process of reducing a huge, distributed dataset to a form that can be plotted, especially in a functional workflow like Apache Spark. It also generalizes the concept of histograms to an algebra of composable primitives, allowing them to be combined in novel ways.
 
-Here's a simple example:
+Here's a simple example.
 
 ```scala
 import org.dianahep.histogrammar._
@@ -17,9 +17,20 @@ val all_histograms = Label("px" -> px_histogram, "pt" -> pt_histogram, "cut" -> 
 val final_histogram = rdd.aggregate(all_histograms)(new Increment, new Combine)
 ```
 
-where `rdd` is a Spark RDD of `Muon` objects. The histograms carry their own fill rules, so when they're embedded in a "meta-histogram" called `Label` (with three "bins": `"px"`, `"pt"`, and `"cut"`), they each know how to fill themselves. That way, the `new Increment` function, which adds data to copies of the histograms on all of Spark's worker nodes, and the `new Combine` function, which merges the partial histograms into a final result, can be generated without any additional code.
+The last line submits the histograms to Spark, which fills independent copies among its worker nodes, combines partial results, and returns the final result for plotting. However, it required very little input from the user. In this example, `rdd` is a dataset of `Muon` objects, which the histograms view in different ways.
 
-Alternatively, one would have to manage the same list of histograms in three functions: booking, incrementing, and combining, which is more open to mistakes.
+Most of the code in this snippet is concerned with the binning the histograms and describing how to fill them. The fill rule is given in each histogram's constructor, so that the data analyst doesn't have to maintain code for booking the histograms in one place, filling in another, and (for distributed jobs) combining in yet another place. In a typical analysis with hundreds of histograms, rather than three, this consolidation reduces errors.
+
+The `all_histograms` object is a mapping from names to histograms. it, too, has a booking-incrementing-combining lifecycle, where its fill rule is to pass all of the data to all of its constituents. It is a sort of "meta-histogram," an aggregator of aggregators.
+
+We could orgnize the histograms into directories by nesting `Label` classes, like this:
+
+```scala
+val directories = Label("momentum" -> Label("px" -> ..., "pt" -> ...),
+                        "position" -> Label("x" -> ..., "y" -> ...))
+```
+
+But what if we wanted to make a histogram of histograms? That is, something like the following:
 
 
 
