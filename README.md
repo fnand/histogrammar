@@ -147,7 +147,7 @@ val violin_box = Branch(Categorize({d: D => d.group}, value = AdaptivelyBin({d: 
 
 ## Histogrammar does not produce graphics
 
-In the discussion above, I included plots from many different plotting packages. Histogrammar is not a plotting package: it aggregates data and passes the result to your favorite plotter. Usually, the aggregation step is more computationally expensive than plotting, so it's frustrating to have to repeat a time-consuming aggregation to change a cosmetic aspect of a plot. Aggregation and graphics must be kept separate.
+In the discussion above, I included plots from many different plotting packages. Histogrammar is not a plotting package: it aggregates data and passes the result to your favorite plotter. Usually, the aggregation step is more computationally expensive than plotting, so it's frustrating to have to repeat a time-consuming aggregation just to change a cosmetic aspect of a plot. Aggregation and graphics must be kept separate.
 
 Aggregation primitives are also easier to implement than graphics, so Histogrammar's core of primitives will be implemented in many different programming languages with a canonical JSON representation. A dataset aggregated in Scala can be plotted in Python. Most language-specific implementations recognize common patterns, such as bin-count being a one-dimensional histogram, to generate the appropriate plot.
 
