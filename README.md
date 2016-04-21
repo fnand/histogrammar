@@ -10,7 +10,7 @@
 
 Histogrammar is a declarative grammar for booking histograms with automatic filling and merging. It simplifies the process of reducing a huge, distributed dataset to a form that can be plotted, especially in a functional workflow like Apache Spark. It is a standardized set of routines available in many programming languages that interoperate by serializing to and from JSON. It also generalizes the concept of histogramming to an algebra of composable primitives, allowing them to be combined in novel ways.
 
-That's the concise overview. Here's a simple example.
+That was the concise overview. Here's a simple example.
 
 ```scala
 import org.dianahep.histogrammar._
