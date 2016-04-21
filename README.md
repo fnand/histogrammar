@@ -52,7 +52,7 @@ But what if we wanted to make a histogram of histograms? That is, something like
 
 The top row of plots show data in one region of _y_ (rapidity), the bottom show another; each column shows data in a different "bin" of centrality, and the plots themselves are histograms of _m_ (dimuon mass).
 
-Just as we could make directories by nesting the `Label` class, we should be able to make multidimensional views of a dataset by nesting histograms. But to do that effectively, we have to decompose histograms into their fundamental components.
+Just as we could make directories by nesting the `Label` class, we should be able to make multivariate views of a dataset by nesting histograms. But to do that effectively, we have to decompose histograms into their fundamental components.
 
 ## What is a histogram, really?
 
