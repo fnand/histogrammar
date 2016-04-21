@@ -30,9 +30,11 @@ val directories = Label("momentum" -> Label("px" -> ..., "pt" -> ...),
                         "position" -> Label("x" -> ..., "y" -> ...))
 ```
 
-But what if we wanted to make a histogram of histograms? That is, something like the following:
+But what if we wanted to make a histogram of histograms? That is, something like the following ([source](https://cds.cern.ch/record/213816)):
 
+<img src="http://diana-hep.org/histogrammar/images/histograms_of_histograms.png" align="center">
 
+The top row of plots show data in one region of _y_ (rapidity), the bottom show another; each column shows data in a different "bin" of centrality, and the plots themselves are histograms of _m_ (dimuon mass).
 
 
 
