@@ -58,10 +58,10 @@ A histogram is a continuous variable that has been discretized (binned) and the 
 val histogram = Bin(numberOfBins, low, high, fillRule, value = Count())
 ```
 
-The `Bin` is a container like `Label`, but its behavior is different. Now consider the following.
+The `Bin` is a container of sub-aggregators, much like `Label`, but its behavior is different. Now consider the following.
 
 ```scala
-val hist2d = Bin(numBinsX, lowX, highX, fillX, value = Bin(numBinsY, lowY, highY, fillY, value = Count())
+val h2d = Bin(numBinsX, lowX, highX, fillX, value = Bin(numBinsY, lowY, highY, fillY, value = Count())
 ```
 
 This aggregator bins one continuous variable, `X`, and further subdivides the space by binning `Y` before counting. It is a two-dimensional histogram, like both of the following ([left source: matplotlib](http://matplotlib.org/examples/pylab_examples/hist2d_log_demo.html)) ([right source: PAW](http://www.hepl.hiroshima-u.ac.jp/phx/sarupaw_html/hist.html)).
@@ -75,7 +75,21 @@ val profile = Bin(numBinsX, lowX, highX, fillRuleX, value = Deviate(fillRuleY))
 ```
 <img src="http://diana-hep.org/histogrammar/images/profile_plot.png">
 
+The appropriate set of primitives can make short work of many common plot types. Most of these are often assembled by hand. ([1D source](http://www.phys.ufl.edu/~jlow/znunuHbbTriggerStudies/triggerobjects.html)) ([2D source](https://userweb.jlab.org/~fomin/scin/))
 
+```scala
+val efficiency = Fraction({mu: Muon => mu.passesTrigger}, Histogram(120, -2.4, 2.4, {mu: Muon => mu.eta})
+```
+
+<img src="http://diana-hep.org/histogrammar/images/efficiency.png" width="400px">
+
+```scala
+val eff2d = Fraction({mu: Muon => mu.passesTrigger},
+                Bin(100, -30, 30, {mu: Muon => mu.x}, value =
+                    Bin(100, -60, 60, {mu: Muon => mu.y}, value = Count())))
+```
+
+<img src="http://diana-hep.org/histogrammar/images/efficiency_2d.png">
 
 
 
