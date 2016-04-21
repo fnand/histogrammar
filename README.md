@@ -21,9 +21,11 @@ val cut_histogram = Histogram(100, -5, 5, {mu: Muon => mu.px}, {mu: Muon => mu.p
 val all_histograms = Label("px" -> px_histogram, "pt" -> pt_histogram, "cut" -> cut_histogram)
 
 val final_histogram = rdd.aggregate(all_histograms)(new Increment, new Combine)
+
+println(final_histogram("pt").ascii)
 ```
 
-The last line submits the histograms to Spark, which fills independent partial histograms in each of its worker nodes, combines partial results, and returns the final result for plotting. However, it required very little input from the user. In this example, `rdd` is a dataset of `Muon` objects, which the histograms view in different ways.
+The `rdd.aggregate` function submits the histograms to Spark, which fills independent partial histograms in each of its worker nodes, combines partial results, and returns the final result for plotting. However, it required very little input from the user. In this example, `rdd` is a dataset of `Muon` objects, which the histograms view in different ways.
 
 ## Managing complexity
 
@@ -141,8 +143,63 @@ val violin_box = Branch(Categorize({d: D => d.group}, value = AdaptivelyBin({d: 
 
 <img src="http://diana-hep.org/histogrammar/images/violin_and_box.png">
 
+## Histogrammar does not produce graphics
 
+In the discussion above, I included plots from many different plotting packages. Histogrammar is not a plotting package: it aggregates data and passes that to your favorite plotting library. Usually, the aggregation step is more computationally expensive than plotting, so it's frustrating to have to repeat a time-consuming aggregation to change a cosmetic aspect of a plot. Aggregation and graphics must be kept separate.
 
+Aggregation primitives are also easier to implement than graphics, so Histogrammar's core of primitives will be implemented in many different programming languages with a canonical JSON representation. A dataset aggregated in Scala can be plotted in Python. Most language-specific implementations recognize common patterns, such as bin-count being a one-dimensional histogram, to generate the appropriate plot.
 
+## Catalog of primitives
 
+| Primitive       | Description |
+|:----------------|:------------|
+| Count           | Count data, ignoring their content. (Actually a sum of weights.) |
+| Sum             | Accumulate the sum of a given quantity. |
+| Average         | Accumulate the weighted mean of a given quantity. |
+| Deviate         | Accumulate a weighted variance, mean, and total weight of a given quantity (using an algorithm that is stable for large numbers). |
+| AbsoluteErr     | Accumulate the weighted Mean Absolute Error (MAE) of a quantity whose nominal value is zero. |
+| Minimize        | Find the minimum value of a given quantity. If no data are observed, the result is NaN. |
+| Maximize        | Find the maximum value of a given quantity. If no data are observed, the result is NaN. |
+| Quantile        | Accumulate an adaptively binned histogram to compute approximate quantiles, such as the median. |
+| Bag             | Accumulate raw data up to an optional limit, at which point only the total number are preserved. |
+| Bin             | Split a given quantity into equally spaced bins between specified limits and fill only one bin per datum. |
+| SparselyBin     | Split a quantity into equally spaced bins, filling only one bin per datum and creating new bins as necessary. |
+| CentrallyBin    | Split a quantity into bins defined by a set of bin centers, filling only one datum per bin with no overflows or underflows. |
+| AdaptivelyBin   | Split a quanity into bins dynamically with a clustering algorithm, filling only one datum per bin with no overflows or underflows. |
+| Fraction        | Accumulate two containers, one with all data (denominator), and one with data that pass a given selection (numerator). |
+| Stack           | Accumulate a suite containers, filling all that are above a given cut on a given expression. |
+| Partition       | Accumulate a suite containers, filling the one that is between a pair of given cuts on a given expression. |
+| Categorize      | Split a given quantity by its categorical (string-based) value and fill only one category per datum. |
+| Label           | Accumulate any number of containers of the SAME type and label them with strings. Every one is filled with every input datum. |
+| UntypedLabel    | Accumulate containers of any type except Count and label them with strings. Every one is filled with every input datum. |
+| Index           | Accumulate any number of containers of the SAME type anonymously in a list. Every one is filled with every input datum. |
+| Branch          | Accumulate containers of DIFFERENT types, indexed by i0 through i9. Every one is filled with every input datum. |
 
+## Status (version 0.2)
+
+| Primitive            | Scala | Python  | C       | SQL     | R       | Javascript |
+|:---------------------|:------|:--------|:--------|:--------|:--------|:-----------|
+| Count                | done  | partial |         |         |         |            |
+| Sum                  | done  |         |         |         |         |            |
+| Average              | done  |         |         |         |         |            |
+| Deviate              | done  |         |         |         |         |            |
+| AbsoluteErr          | done  |         |         |         |         |            |
+| Minimize             | done  |         |         |         |         |            |
+| Maximize             | done  |         |         |         |         |            |
+| Quantile             | done  |         |         |         |         |            |
+| Bag                  | done  |         |         |         |         |            |
+| Bin                  | done  |         |         |         |         |            |
+| SparselyBin          | done  |         |         |         |         |            |
+| CentrallyBin         | done  |         |         |         |         |            |
+| AdaptivelyBin        | done  |         |         |         |         |            |
+| IrregularlyBin       |       |         |         |         |         |            |
+| Fraction             | done  |         |         |         |         |            |
+| Stack                | done  |         |         |         |         |            |
+| CategoricalStack     |       |         |         |         |         |            |
+| Partition            | done  |         |         |         |         |            |
+| CategoricalPartition |       |         |         |         |         |            |
+| Categorize           | done  |         |         |         |         |            |
+| Label                | done  |         |         |         |         |            |
+| UntypedLabel         | done  |         |         |         |         |            |
+| Index                | done  |         |         |         |         |            |
+| Branch               | done  |         |         |         |         |            |
