@@ -181,29 +181,29 @@ Aggregation primitives are also easier to implement than graphics, so Histogramm
 
 Last released version was 0.2. The following refers to the git master branch.
 
-| Primitive            | Scala | Python  | C       | SQL     | R       | Javascript |
-|:---------------------|:------|:--------|:--------|:--------|:--------|:-----------|
-| Count                | done  | done    |         |         |         |            |
-| Sum                  | done  | done    |         |         |         |            |
-| Average              | done  | done    |         |         |         |            |
-| Deviate              | done  | done    |         |         |         |            |
-| AbsoluteErr          | done  | done    |         |         |         |            |
-| Minimize             | done  | done    |         |         |         |            |
-| Maximize             | done  | done    |         |         |         |            |
-| Quantile             | done  |         |         |         |         |            |
-| Bag                  | done  | done    |         |         |         |            |
-| Bin                  | done  | done    |         |         |         |            |
-| SparselyBin          | done  |         |         |         |         |            |
-| CentrallyBin         | done  |         |         |         |         |            |
-| AdaptivelyBin        | done  |         |         |         |         |            |
-| IrregularlyBin       |       |         |         |         |         |            |
-| Fraction             | done  |         |         |         |         |            |
-| Stack                | done  |         |         |         |         |            |
-| CategoricalStack     |       |         |         |         |         |            |
-| Partition            | done  |         |         |         |         |            |
-| CategoricalPartition |       |         |         |         |         |            |
-| Categorize           | done  |         |         |         |         |            |
-| Label                | done  |         |         |         |         |            |
-| UntypedLabel         | done  |         |         |         |         |            |
-| Index                | done  |         |         |         |         |            |
-| Branch               | done  |         |         |         |         |            |
+| Primitive              | Scala | Python  | C       | SQL     | R       | Javascript |
+|:-----------------------|:------|:--------|:--------|:--------|:--------|:-----------|
+| Count                  | done  | done    |         |         |         |            |
+| Sum                    | done  | done    |         |         |         |            |
+| Average                | done  | done    |         |         |         |            |
+| Deviate                | done  | done    |         |         |         |            |
+| AbsoluteErr            | done  | done    |         |         |         |            |
+| Minimize               | done  | done    |         |         |         |            |
+| Maximize               | done  | done    |         |         |         |            |
+| Quantile               | done  |         |         |         |         |            |
+| Bag                    | done  | done    |         |         |         |            |
+| Bin                    | done  | done    |         |         |         |            |
+| SparselyBin            | done  | 1       |         |         |         |            |
+| CentrallyBin           | done  |         |         |         |         |            |
+| AdaptivelyBin          | done  |         |         |         |         |            |
+| IrregularlyBin         |       |         |         |         |         |            |
+| Fraction               | done  | 2       |         |         |         |            |
+| Stack                  | done  | 3       |         |         |         |            |
+| CategoricallyStack     |       |         |         |         |         |            |
+| Partition              | done  | 4       |         |         |         |            |
+| CategoricallyPartition |       |         |         |         |         |            |
+| Categorize             | done  | 5       |         |         |         |            |
+| Label                  | done  | 6       |         |         |         |            |
+| UntypedLabel           | done  | 7       |         |         |         |            |
+| Index                  | done  | 8       |         |         |         |            |
+| Branch                 | done  | 9       |         |         |         |            |
