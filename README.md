@@ -184,14 +184,14 @@ Last released version was 0.2. The following refers to the git master branch.
 | Primitive            | Scala | Python  | C       | SQL     | R       | Javascript |
 |:---------------------|:------|:--------|:--------|:--------|:--------|:-----------|
 | Count                | done  | done    |         |         |         |            |
-| Sum                  | done  |         |         |         |         |            |
-| Average              | done  |         |         |         |         |            |
-| Deviate              | done  |         |         |         |         |            |
+| Sum                  | done  | done    |         |         |         |            |
+| Average              | done  | done    |         |         |         |            |
+| Deviate              | done  | done    |         |         |         |            |
 | AbsoluteErr          | done  | done    |         |         |         |            |
-| Minimize             | done  |         |         |         |         |            |
-| Maximize             | done  |         |         |         |         |            |
+| Minimize             | done  | done    |         |         |         |            |
+| Maximize             | done  | done    |         |         |         |            |
 | Quantile             | done  |         |         |         |         |            |
-| Bag                  | done  |         |         |         |         |            |
+| Bag                  | done  | done    |         |         |         |            |
 | Bin                  | done  | done    |         |         |         |            |
 | SparselyBin          | done  |         |         |         |         |            |
 | CentrallyBin         | done  |         |         |         |         |            |
