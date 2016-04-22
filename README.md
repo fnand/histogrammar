@@ -187,7 +187,7 @@ Last released version was 0.2. The following refers to the git master branch.
 | Sum                  | done  |         |         |         |         |            |
 | Average              | done  |         |         |         |         |            |
 | Deviate              | done  |         |         |         |         |            |
-| AbsoluteErr          | done  |         |         |         |         |            |
+| AbsoluteErr          | done  | done    |         |         |         |            |
 | Minimize             | done  |         |         |         |         |            |
 | Maximize             | done  |         |         |         |         |            |
 | Quantile             | done  |         |         |         |         |            |
