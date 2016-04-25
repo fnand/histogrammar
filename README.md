@@ -2,7 +2,7 @@
 
 ## Quick links to reference documentation
 
-  * [Scaladocs for the Scala version](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.package)
+  * [Scaladocs for the Scala version](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.package)
   * [Catalog of primitives](#catalog-of-primitives)
   * [Current status](#status)
 
