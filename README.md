@@ -199,9 +199,7 @@ Last released version was 0.2. The following refers to the git master branch.
 | IrregularlyBin         |       |         |         |         |         |            |             |
 | Fraction               | done  | 6       |         |         |         |            |             |
 | Stack                  | done  | 7       |         |         |         |            |             |
-| CategoricallyStack     |       |         |         |         |         |            |             |
 | Partition              | done  | 8       |         |         |         |            |             |
-| CategoricallyPartition |       |         |         |         |         |            |             |
 | Categorize             | done  | 5       |         |         |         |            |             |
 | Label                  | done  | 1       |         |         |         |            |             |
 | UntypedLabel           | done  | 2       |         |         |         |            |             |
