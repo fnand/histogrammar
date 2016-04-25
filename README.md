@@ -48,7 +48,7 @@ But what if we wanted to make a histogram of histograms? That is, something like
 
 ([source](https://cds.cern.ch/record/213816))
 
-<img src="http://diana-hep.org/histogrammar/images/histograms_of_histograms.png">
+<img src="docs/wiki-images/histograms_of_histograms.png">
 
 The top row of plots show data in one region of _y_ (rapidity), the bottom show another; each column shows data in a different "bin" of centrality, and the plots themselves are histograms of _m_ (dimuon mass).
 
@@ -74,7 +74,7 @@ This aggregator divides the space by binning in one continuous variable, `X`, an
 
 ([left source: matplotlib](http://matplotlib.org/examples/pylab_examples/hist2d_log_demo.html)) ([right source: PAW](http://www.hepl.hiroshima-u.ac.jp/phx/sarupaw_html/hist.html))
 
-<img src="http://diana-hep.org/histogrammar/images/two_dimensional.png" height="300px"> <img src="http://diana-hep.org/histogrammar/images/lego_plot.png" height="300px">
+<img src="docs/wiki-images/two_dimensional.png" height="300px"> <img src="docs/wiki-images/lego_plot.png" height="300px">
 
 A so-called "profile plot" is a histogram in which each bin accumulates a mean and standard deviation, rather than a count. The Histogrammar primitive for mean and standard deviation is `Deviate`.
 
@@ -84,7 +84,7 @@ val profile = Bin(numBinsX, lowX, highX, fillRuleX, value = Deviate(fillRuleY))
 
 ([source: ROOT](https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html))
 
-<img src="http://diana-hep.org/histogrammar/images/profile_plot.png">
+<img src="docs/wiki-images/profile_plot.png">
 
 The appropriate set of primitives can make short work of many common plot types. Most of these are often assembled by hand.
 
@@ -94,7 +94,7 @@ val efficiency = Fraction({mu: Muon => mu.passesTrigger}, Histogram(120, -2.4, 2
 
 ([source: ROOT](http://www.phys.ufl.edu/~jlow/znunuHbbTriggerStudies/triggerobjects.html)) 
 
-<img src="http://diana-hep.org/histogrammar/images/efficiency.png" width="400px">
+<img src="docs/wiki-images/efficiency.png" width="400px">
 
 ```scala
 val efficiency2d = Fraction({mu: Muon => mu.passesTrigger},
@@ -104,7 +104,7 @@ val efficiency2d = Fraction({mu: Muon => mu.passesTrigger},
 
 ([source: PAW](https://userweb.jlab.org/~fomin/scin/))
 
-<img src="http://diana-hep.org/histogrammar/images/efficiency_2d.png">
+<img src="docs/wiki-images/efficiency_2d.png">
 
 Histogram bins turn a numerical feature into categories. But sometimes the data are already categorical.
 
@@ -115,7 +115,7 @@ val categorical_heatmap = Categorize({d: D => d.femaleReligion}, value =
 
 ([source: plot.ly](http://help.plot.ly/make-a-heatmap/))
 
-<img src="http://diana-hep.org/histogrammar/images/categorical.png">
+<img src="docs/wiki-images/categorical.png">
 
 And that allows us to freely mix categorical and numerical aggregation.
 
@@ -125,7 +125,7 @@ val mixed = CategoricalStack(Histogram(140, 0, 140000, {d: D => d.salary}), {d: 
 
 ([source: SPSS](http://www.ibm.com/support/knowledgecenter/SSLVMB_20.0.0/com.ibm.spss.statistics.help/gpl_examples_barcharts_histogram_stack.htm))
 
-<img src="http://diana-hep.org/histogrammar/images/stacked.png">
+<img src="docs/wiki-images/stacked.png">
 
 It also lets us swap one binning strategy with another without affecting anything else in the hierarchy.
 
@@ -143,7 +143,7 @@ val violin_box = Branch(Categorize({d: D => d.group}, value = AdaptivelyBin({d: 
 
 ([source: R](http://stackoverflow.com/questions/27012500/how-to-align-violin-plots-with-boxplots))
 
-<img src="http://diana-hep.org/histogrammar/images/violin_and_box.png">
+<img src="docs/wiki-images/violin_and_box.png">
 
 ## Histogrammar does not produce graphics
 
