@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef HISTOGRAMMAR_DEFS_H
-#define HISTOGRAMMAR_DEFS_H
+#ifndef HISTOGRAMMAR_H
+#define HISTOGRAMMAR_H
 
 class Something {
 public:
   int some();
 };
 
-#endif // HISTOGRAMMAR_DEFS_H
+#endif // HISTOGRAMMAR_H

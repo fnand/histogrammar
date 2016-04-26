@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "defs.h"
+#include "histogrammar.h"
 
 int Something::some() {
   return 12;

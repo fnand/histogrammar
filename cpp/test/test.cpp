@@ -14,7 +14,7 @@
 
 #include <iostream>
 
-#include "../src/defs.h"
+#include "histogrammar.h"
 
 int main(int argc, char **argv) {
   Something s;
