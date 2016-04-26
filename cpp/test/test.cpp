@@ -15,7 +15,9 @@
 #include <iostream>
 #include <string>
 
-#include "histogrammar.h"
+#include "histogrammar.hpp"
+
+using namespace histogrammar;
 
 void test_Counted() {
   auto one = Count::ed(1);
@@ -39,7 +41,6 @@ void test_Counting() {
 int main(int argc, char **argv) {
   test_Counted();
   test_Counting();
-
 
   return 0;
 }
