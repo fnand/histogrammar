@@ -16,9 +16,6 @@
 
 std::unique_ptr<Counted> Count::ed(double entries) { return std::unique_ptr<Counted>(new Counted(entries)); }
 
-template <typename DATUM>
-std::unique_ptr<Counting<DATUM> > Count::ing() { return std::unique_ptr<Counting<DATUM> >(new Counting<DATUM>()); }
-
 Counted::Counted(double entries) : entries_(entries) { }
 
 double Counted::entries() { return entries_; }
@@ -26,13 +23,3 @@ double Counted::entries() { return entries_; }
 std::unique_ptr<Counted> Counted::zero() { return std::unique_ptr<Counted>(new Counted(0.0)); }
 
 std::unique_ptr<Counted> Counted::plus(std::unique_ptr<Counted> &that) { return std::unique_ptr<Counted>(new Counted(this->entries() + that->entries())); }
-
-template <typename DATUM>
-Counting<DATUM>::Counting() : Counted(0.0) { }
-
-template <typename DATUM>
-void Counting<DATUM>::fill(DATUM datum, double weight) {
-  entries_ += weight;
-}
-
-

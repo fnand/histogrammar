@@ -71,7 +71,16 @@ public:
   void fill(DATUM datum, double weight = 1.0);
 };
 
+template <typename DATUM>
+std::unique_ptr<Counting<DATUM> > Count::ing() { return std::unique_ptr<Counting<DATUM> >(new Counting<DATUM>()); }
 
+template <typename DATUM>
+Counting<DATUM>::Counting() : Counted(0.0) { }
+
+template <typename DATUM>
+void Counting<DATUM>::fill(DATUM datum, double weight) {
+  entries_ += weight;
+}
 
 // class Binning<DATUM> : public Container<CONTAINER>, Aggregation<DATUM> {
 // public:
