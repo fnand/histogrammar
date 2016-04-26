@@ -13,13 +13,28 @@
 // limitations under the License.
 
 #include <iostream>
+#include <string>
 
 #include "histogrammar.h"
 
-int main(int argc, char **argv) {
-  Something s;
+void test_Counted() {
+  auto one = Count::ed(1);
+  auto two = Count::ed(2);
+  std::cout << "Counted: " << one->entries() << " + " << two->entries() << " = " << one->plus(two)->entries() << std::endl;
+}
 
-  std::cout << "hey " << s.some() << std::endl;
+void test_Counting() {
+  auto one = Count::ing<std::string>();
+  auto two = Count::ing<std::string>();
+  one->fill("hello");
+  two->fill("hey");
+  two->fill("there");
+  std::cout << "Counting: " << one->entries() << " + " << two->entries() << " = " << std::endl;
+}
+
+int main(int argc, char **argv) {
+  test_Counted();
+  test_Counting();
 
 
   return 0;
