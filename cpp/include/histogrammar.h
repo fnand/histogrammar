@@ -45,6 +45,9 @@ template <typename DATUM> class Counting;
 class Count {
 public:
   static std::unique_ptr<Counted> ed(double entries);
+  //  static std::unique_ptr<Counted> ed(std::unique_ptr<Counted> &old);
+  // template <typename DATUM>
+  // static std::unique_ptr<Counted> ed(std::unique_ptr<Counting<DATUM> > &old);
   template <typename DATUM>
   static std::unique_ptr<Counting<DATUM> > ing();
 };
@@ -60,6 +63,7 @@ public:
   double entries();
   std::unique_ptr<Counted> zero();
   std::unique_ptr<Counted> plus(std::unique_ptr<Counted> &that);
+  static std::unique_ptr<Counted> fix(std::unique_ptr<Counted> &me);
 };
 
 template <typename DATUM>
@@ -70,6 +74,9 @@ private:
 public:
   void fill(DATUM datum, double weight = 1.0);
 };
+
+// template <typename DATUM>
+// static std::unique_ptr<Counted> ed(std::unique_ptr<Counting<DATUM> > &old) { return std::unique_ptr<Counted>(std::move(old)); }
 
 template <typename DATUM>
 std::unique_ptr<Counting<DATUM> > Count::ing() { return std::unique_ptr<Counting<DATUM> >(new Counting<DATUM>()); }

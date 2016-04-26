@@ -29,7 +29,11 @@ void test_Counting() {
   one->fill("hello");
   two->fill("hey");
   two->fill("there");
-  std::cout << "Counting: " << one->entries() << " + " << two->entries() << " = " << std::endl;
+
+  auto oneed = std::unique_ptr<Counted>(std::move(one));
+  auto twoed = std::unique_ptr<Counted>(std::move(two));
+
+  std::cout << "Counting: " << oneed->entries() << " + " << twoed->entries() << " = " << oneed->plus(twoed)->entries() << std::endl;
 }
 
 int main(int argc, char **argv) {
