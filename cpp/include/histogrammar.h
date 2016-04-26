@@ -45,9 +45,6 @@ template <typename DATUM> class Counting;
 class Count {
 public:
   static std::unique_ptr<Counted> ed(double entries);
-  //  static std::unique_ptr<Counted> ed(std::unique_ptr<Counted> &old);
-  // template <typename DATUM>
-  // static std::unique_ptr<Counted> ed(std::unique_ptr<Counting<DATUM> > &old);
   template <typename DATUM>
   static std::unique_ptr<Counting<DATUM> > ing();
 };
@@ -56,38 +53,35 @@ class Counted : public Container<Counted> {
   friend class Count;
   template <typename DATUM> friend class Counting;
 private:
-  Counted(double entries_);
+  Counted(double entries) : entries_(entries) { }
 protected:
   double entries_;
 public:
-  double entries();
-  std::unique_ptr<Counted> zero();
-  std::unique_ptr<Counted> plus(std::unique_ptr<Counted> &that);
-  static std::unique_ptr<Counted> fix(std::unique_ptr<Counted> &me);
+  double entries() { return entries_; }
+  std::unique_ptr<Counted> zero() { return std::unique_ptr<Counted>(new Counted(0.0)); }
+  std::unique_ptr<Counted> plus(std::unique_ptr<Counted> &that) {
+    return std::unique_ptr<Counted>(new Counted(this->entries() + that->entries()));
+  }
 };
 
 template <typename DATUM>
 class Counting : public Counted, Aggregation<DATUM> {
   friend class Count;
 private:
-  Counting();
+  Counting() : Counted(0.0) { }
 public:
-  void fill(DATUM datum, double weight = 1.0);
+  void fill(DATUM datum, double weight = 1.0) {
+    entries_ += weight;
+  }
 };
 
-// template <typename DATUM>
-// static std::unique_ptr<Counted> ed(std::unique_ptr<Counting<DATUM> > &old) { return std::unique_ptr<Counted>(std::move(old)); }
+std::unique_ptr<Counted> Count::ed(double entries) { return std::unique_ptr<Counted>(new Counted(entries)); }
 
 template <typename DATUM>
 std::unique_ptr<Counting<DATUM> > Count::ing() { return std::unique_ptr<Counting<DATUM> >(new Counting<DATUM>()); }
 
-template <typename DATUM>
-Counting<DATUM>::Counting() : Counted(0.0) { }
 
-template <typename DATUM>
-void Counting<DATUM>::fill(DATUM datum, double weight) {
-  entries_ += weight;
-}
+
 
 // class Binning<DATUM> : public Container<CONTAINER>, Aggregation<DATUM> {
 // public:
