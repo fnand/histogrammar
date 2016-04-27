@@ -41,6 +41,25 @@ void test_Summed() {
   std::cout << "Summed sum: " << one->sum() << " + " << two->sum() << " = " << one->plus(two)->sum() << std::endl;
 }
 
+void test_Bin() {
+  std::vector<std::shared_ptr<Counted> > onevalues;
+  onevalues.push_back(Count::ed(1));
+  onevalues.push_back(Count::ed(2));
+  onevalues.push_back(Count::ed(3));
+
+  std::vector<std::shared_ptr<Counted> > twovalues;
+  onevalues.push_back(Count::ed(3));
+  onevalues.push_back(Count::ed(2));
+  onevalues.push_back(Count::ed(1));
+
+  auto one = Bin::ed(-3, 5, 0.0, onevalues);
+  auto two = Bin::ed(-3, 5, 0.0, twovalues);
+  auto three = one->plus(two);
+
+  std::cout << "Binned values: " << three->at(0)->entries() << " " << three->at(1)->entries() << " " << three->at(2)->entries() << std::endl;
+}
+
+
 void test_Summing() {
   auto one = Sum::ing<std::string>([](std::string datum){return (double)datum.size();});
   auto two = Sum::ing<std::string>([](std::string datum){return (double)datum.size();});

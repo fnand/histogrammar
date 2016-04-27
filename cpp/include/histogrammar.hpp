@@ -15,7 +15,6 @@
 #ifndef HISTOGRAMMAR_HPP
 #define HISTOGRAMMAR_HPP
 
-#include <algorithm>
 #include <math.h>
 #include <memory>
 #include <stdexcept>
@@ -47,8 +46,8 @@ namespace histogrammar {
   class Container {
   public:
     virtual double entries() = 0;
-    virtual std::unique_ptr<CONTAINER> zero() = 0;
-    virtual std::unique_ptr<CONTAINER> plus(std::unique_ptr<CONTAINER> &that) = 0;
+    virtual std::shared_ptr<CONTAINER> zero() = 0;
+    virtual std::shared_ptr<CONTAINER> plus(std::shared_ptr<CONTAINER> that) = 0;
   };
 
   template <typename DATUM>
@@ -65,9 +64,9 @@ namespace histogrammar {
   class Count : public Factory {
   public:
     std::string name() { return "Count"; }
-    static std::unique_ptr<Counted> ed(double entries);
+    static std::shared_ptr<Counted> ed(double entries);
     template <typename DATUM>
-    static std::unique_ptr<Counting<DATUM> > ing();
+    static std::shared_ptr<Counting<DATUM> > ing();
   };
 
   class Counted : public Container<Counted> {
@@ -77,9 +76,9 @@ namespace histogrammar {
     Counted(double entries) : entries_(entries) { }
   public:
     double entries() { return entries_; }
-    std::unique_ptr<Counted> zero() { return std::unique_ptr<Counted>(new Counted(0.0)); }
-    std::unique_ptr<Counted> plus(std::unique_ptr<Counted> &that) {
-      return std::unique_ptr<Counted>(new Counted(this->entries() + that->entries()));
+    std::shared_ptr<Counted> zero() { return std::shared_ptr<Counted>(new Counted(0.0)); }
+    std::shared_ptr<Counted> plus(std::shared_ptr<Counted> that) {
+      return std::shared_ptr<Counted>(new Counted(this->entries() + that->entries()));
     }
   };
 
@@ -91,19 +90,19 @@ namespace histogrammar {
     Counting(double entries) : entries_(entries) { }
   public:
     double entries() { return entries_; }
-    std::unique_ptr<Counting<DATUM> > zero() { return std::unique_ptr<Counting<DATUM> >(new Counting<DATUM>(0.0)); }
-    std::unique_ptr<Counting<DATUM> > plus(std::unique_ptr<Counting<DATUM> > &that) {
-      return std::unique_ptr<Counting<DATUM> >(new Counting<DATUM>(this->entries() + that->entries()));
+    std::shared_ptr<Counting<DATUM> > zero() { return std::shared_ptr<Counting<DATUM> >(new Counting<DATUM>(0.0)); }
+    std::shared_ptr<Counting<DATUM> > plus(std::shared_ptr<Counting<DATUM> > that) {
+      return std::shared_ptr<Counting<DATUM> >(new Counting<DATUM>(this->entries() + that->entries()));
     }
     void fill(DATUM datum, double weight = 1.0) {
       entries_ += weight;
     }
   };
 
-  std::unique_ptr<Counted> Count::ed(double entries) { return std::unique_ptr<Counted>(new Counted(entries)); }
+  std::shared_ptr<Counted> Count::ed(double entries) { return std::shared_ptr<Counted>(new Counted(entries)); }
 
   template <typename DATUM>
-  std::unique_ptr<Counting<DATUM> > Count::ing() { return std::unique_ptr<Counting<DATUM> >(new Counting<DATUM>(0.0)); }
+  std::shared_ptr<Counting<DATUM> > Count::ing() { return std::shared_ptr<Counting<DATUM> >(new Counting<DATUM>(0.0)); }
 
   //////////////////////////////////////////////////////////////// Sum/Summed/Summing
 
@@ -113,9 +112,9 @@ namespace histogrammar {
   class Sum : public Factory {
   public:
     std::string name() { return "Sum"; }
-    static std::unique_ptr<Summed> ed(double entries, double sum);
+    static std::shared_ptr<Summed> ed(double entries, double sum);
     template <typename DATUM>
-    static std::unique_ptr<Summing<DATUM> > ing(std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection = makeUnweighted<DATUM>());
+    static std::shared_ptr<Summing<DATUM> > ing(std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection = makeUnweighted<DATUM>());
   };
 
   class Summed : public Container<Summed> {
@@ -127,9 +126,9 @@ namespace histogrammar {
   public:
     double entries() { return entries_; }
     double sum() { return sum_; }
-    std::unique_ptr<Summed> zero() { return std::unique_ptr<Summed>(new Summed(0.0, 0.0)); }
-    std::unique_ptr<Summed> plus(std::unique_ptr<Summed> &that) {
-      return std::unique_ptr<Summed>(new Summed(this->entries() + that->entries(), this->sum() + that->sum()));
+    std::shared_ptr<Summed> zero() { return std::shared_ptr<Summed>(new Summed(0.0, 0.0)); }
+    std::shared_ptr<Summed> plus(std::shared_ptr<Summed> that) {
+      return std::shared_ptr<Summed>(new Summed(this->entries() + that->entries(), this->sum() + that->sum()));
     }
   };
 
@@ -145,9 +144,9 @@ namespace histogrammar {
     const std::function<double(DATUM)> selection;
     double entries() { return entries_; }
     double sum() { return sum_; }
-    std::unique_ptr<Summing<DATUM> > zero() { return std::unique_ptr<Summing<DATUM> >(new Summing<DATUM>(quantity, selection, 0.0, 0.0)); }
-    std::unique_ptr<Summing<DATUM> > plus(std::unique_ptr<Summing<DATUM> > &that) {
-      return std::unique_ptr<Summing<DATUM> >(new Summing<DATUM>(quantity, selection, this->entries() + that->entries(), this->sum() + that->sum()));
+    std::shared_ptr<Summing<DATUM> > zero() { return std::shared_ptr<Summing<DATUM> >(new Summing<DATUM>(quantity, selection, 0.0, 0.0)); }
+    std::shared_ptr<Summing<DATUM> > plus(std::shared_ptr<Summing<DATUM> > that) {
+      return std::shared_ptr<Summing<DATUM> >(new Summing<DATUM>(quantity, selection, this->entries() + that->entries(), this->sum() + that->sum()));
     }
     void fill(DATUM datum, double weight = 1.0) {
       double w = weight * selection(datum);
@@ -159,10 +158,10 @@ namespace histogrammar {
     }
   };
 
-  std::unique_ptr<Summed> Sum::ed(double entries, double sum) { return std::unique_ptr<Summed>(new Summed(entries, sum)); }
+  std::shared_ptr<Summed> Sum::ed(double entries, double sum) { return std::shared_ptr<Summed>(new Summed(entries, sum)); }
 
   template <typename DATUM>
-  std::unique_ptr<Summing<DATUM> > Sum::ing(std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection) { return std::unique_ptr<Summing<DATUM> >(new Summing<DATUM>(quantity, selection, 0.0, 0.0)); }
+  std::shared_ptr<Summing<DATUM> > Sum::ing(std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection) { return std::shared_ptr<Summing<DATUM> >(new Summing<DATUM>(quantity, selection, 0.0, 0.0)); }
 
   //////////////////////////////////////////////////////////////// Bin/Binned/Binning
 
@@ -173,9 +172,9 @@ namespace histogrammar {
   public:
     std::string name() { return "Bin"; }
     template <typename V>
-    static std::unique_ptr<Binned<V> > ed(double low, double high, double entries, std::vector<std::unique_ptr<V> > values);
+    static std::shared_ptr<Binned<V> > ed(double low, double high, double entries, std::vector<std::shared_ptr<V> > values);
     template <typename DATUM, typename V>
-    static std::unique_ptr<Binning<DATUM, V> > ing(int num, double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection = makeUnweighted<DATUM>(), std::unique_ptr<V> value = Count::ing<DATUM>());
+    static std::shared_ptr<Binning<DATUM, V> > ing(int num, double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection = makeUnweighted<DATUM>(), std::shared_ptr<V> value = Count::ing<DATUM>());
   };
 
   class BinMethods {
@@ -218,8 +217,8 @@ namespace histogrammar {
     double low_;
     double high_;
     double entries_;
-    std::vector<std::unique_ptr<V> > values_;
-    Binned(double low, double high, double entries, std::vector<std::unique_ptr<V> > values) : low_(low), high_(high), entries_(entries), values_(values) {
+    std::vector<std::shared_ptr<V> > values_;
+    Binned(double low, double high, double entries, std::vector<std::shared_ptr<V> > values) : low_(low), high_(high), entries_(entries), values_(values) {
       static_assert(std::is_base_of<Container<V>, V>::value, "Binned values type must be a Container");
       if (low >= high)
         throw std::invalid_argument(std::string("low (") + std::to_string(low) + std::string(") must be less than high (") + std::to_string(high) + std::string(")"));
@@ -233,26 +232,28 @@ namespace histogrammar {
     double low() { return low_; }
     double high() { return high_; }
     double entries() { return entries_; }
-    std::vector<std::unique_ptr<V> > values() { return values_; }
+    std::vector<std::shared_ptr<V> > values() { return values_; }
 
-    std::unique_ptr<V> at(int index) { return values_(index); }
+    std::shared_ptr<V> at(int index) { return values_[index]; }
 
-    std::unique_ptr<Binned<V> > zero() {
-      return std::unique_ptr<Binned<V> >(new Binned<V>(low_, high_, entries_, std::transform(values_.begin(), values_.end(), [](std::unique_ptr<V> v){v->zero();})));
-    }
-    std::unique_ptr<Binned<V> > plus(std::unique_ptr<Binned<V> > &that) {
-      if (this->low() != that->low())
-        throw std::invalid_argument(std::string("cannot add Binned because low differs (") + std::to_string(this->low()) + std::string(" vs ") + std::string(that->low()) + std::string(")"));
-      if (this->high() != that->high())
-        throw std::invalid_argument(std::string("cannot add Binned because high differs (") + std::to_string(this->high()) + std::string(" vs ") + std::string(that->high()) + std::string(")"));
-      if (this->num() != that->num())
-        throw std::invalid_argument(std::string("cannot add Binned because number of values differs (") + std::to_string(this->num()) + std::string(" vs ") + std::string(that->num()) + std::string(")"));
-
-      std::vector<std::unique_ptr<V> > newvalues(num());
+    std::shared_ptr<Binned<V> > zero() {
+      std::vector<std::shared_ptr<V> > newvalues(num());
       for (int i = 0;  i < num();  i++)
-        newvalues[i] = this->at(i).plus(that->at(i));
+        newvalues[i] = at(i)->zero();
+      return std::shared_ptr<Binned<V> >(new Binned<V>(low_, high_, entries_, newvalues));
+    }
+    std::shared_ptr<Binned<V> > plus(std::shared_ptr<Binned<V> > that) {
+      // if (this->low() != that->low())
+      //   throw std::invalid_argument(std::string("cannot add Binned because low differs (") + std::to_string(this->low()) + std::string(" vs ") + std::string(that->low()) + std::string(")"));
+      // if (this->high() != that->high())
+      //   throw std::invalid_argument(std::string("cannot add Binned because high differs (") + std::to_string(this->high()) + std::string(" vs ") + std::string(that->high()) + std::string(")"));
+      // if (this->num() != that->num())
+      //   throw std::invalid_argument(std::string("cannot add Binned because number of values differs (") + std::to_string(this->num()) + std::string(" vs ") + std::string(that->num()) + std::string(")"));
 
-      return std::unique_ptr<Binned<V> >(new Binned<V>(low_, high_, entries_, newvalues));
+      std::vector<std::shared_ptr<V> > newvalues(num());
+      for (int i = 0;  i < num();  i++)
+        newvalues[i] = this->at(i)->plus(that->at(i));
+      return std::shared_ptr<Binned<V> >(new Binned<V>(low_, high_, entries_, newvalues));
     }
   };
 
@@ -263,8 +264,8 @@ namespace histogrammar {
     double low_;
     double high_;
     double entries_;
-    std::vector<std::unique_ptr<V> > values_;
-    Binning(double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, double entries, std::vector<std::unique_ptr<V> > values) : low_(low), high_(high), quantity(quantity), selection(selection), values_(values) {
+    std::vector<std::shared_ptr<V> > values_;
+    Binning(double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, double entries, std::vector<std::shared_ptr<V> > values) : low_(low), high_(high), quantity(quantity), selection(selection), values_(values) {
       static_assert(std::is_base_of<Container<V>, V>::value, "Binning values type must be a Container");
       static_assert(std::is_base_of<Aggregation<DATUM>, V>::value, "Binning values type must have Aggregation for this data type");
       if (low >= high)
@@ -282,14 +283,14 @@ namespace histogrammar {
     double low() { return low_; }
     double high() { return high_; }
     double entries() { return entries_; }
-    std::vector<std::unique_ptr<V> > values() { return values_; }
+    std::vector<std::shared_ptr<V> > values() { return values_; }
 
-    std::unique_ptr<V> at(int index) { return values_(index); }
+    std::shared_ptr<V> at(int index) { return values_[index]; }
 
-    std::unique_ptr<Binning<DATUM, V> > zero() {
-      return std::unique_ptr<Binning<DATUM, V> >(new Binning<DATUM, V>(low_, high_, entries_, std::transform(values_.begin(), values_.end(), [](std::unique_ptr<V> v){v->zero();})));
+    std::shared_ptr<Binning<DATUM, V> > zero() {
+      return std::shared_ptr<Binning<DATUM, V> >(new Binning<DATUM, V>(low_, high_, entries_, std::transform(values_.begin(), values_.end(), [](std::shared_ptr<V> v){v->zero();})));
     }
-    std::unique_ptr<Binning<DATUM, V> > plus(std::unique_ptr<Binning<DATUM, V> > &that) {
+    std::shared_ptr<Binning<DATUM, V> > plus(std::shared_ptr<Binning<DATUM, V> > that) {
       if (this->low() != that->low())
         throw std::invalid_argument(std::string("cannot add Binned because low differs (") + std::to_string(this->low()) + std::string(" vs ") + std::string(that->low()) + std::string(")"));
       if (this->high() != that->high())
@@ -297,11 +298,11 @@ namespace histogrammar {
       if (this->num() != that->num())
         throw std::invalid_argument(std::string("cannot add Binned because number of values differs (") + std::to_string(this->num()) + std::string(" vs ") + std::string(that->num()) + std::string(")"));
 
-      std::vector<std::unique_ptr<V> > newvalues(num());
+      std::vector<std::shared_ptr<V> > newvalues(num());
       for (int i = 0;  i < num();  i++)
         newvalues[i] = this->at(i).plus(that->at(i));
 
-      return std::unique_ptr<Binning<DATUM, V> >(new Binning<DATUM, V>(low_, high_, entries_, newvalues));
+      return std::shared_ptr<Binning<DATUM, V> >(new Binning<DATUM, V>(low_, high_, entries_, newvalues));
     }
 
     void fill(DATUM datum, double weight = 1.0) {
@@ -323,16 +324,16 @@ namespace histogrammar {
   };
 
   template <typename V>
-  static std::unique_ptr<Binned<V> > ed(double low, double high, double entries, std::vector<std::unique_ptr<V> > values) {
-    return std::unique_ptr<Binned<V> >(new Binned<V>(low, high, entries, values));
+  static std::shared_ptr<Binned<V> > ed(double low, double high, double entries, std::vector<std::shared_ptr<V> > values) {
+    return std::shared_ptr<Binned<V> >(new Binned<V>(low, high, entries, values));
   }
 
   template <typename DATUM, typename V>
-  static std::unique_ptr<Binning<DATUM, V> > ing(int num, double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, std::unique_ptr<V> value) {
-    std::vector<std::unique_ptr<V> > values(num);
+  static std::shared_ptr<Binning<DATUM, V> > ing(int num, double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, std::shared_ptr<V> value) {
+    std::vector<std::shared_ptr<V> > values(num);
     for (int i = 0;  i < num;  i++)
       values[i] = value.zero();
-    return std::unique_ptr<DATUM, V>(new Binning<DATUM, V>(low, high, quantity, selection, 0.0, values));
+    return std::shared_ptr<Binning<DATUM, V> >(new Binning<DATUM, V>(low, high, quantity, selection, 0.0, values));
   }
 
 }
