@@ -38,9 +38,32 @@ void test_Counting() {
   std::cout << "Counting: " << oneed->entries() << " + " << twoed->entries() << " = " << oneed->plus(twoed)->entries() << std::endl;
 }
 
+void test_Summed() {
+  auto one = Sum::ed(1, 1);
+  auto two = Sum::ed(2, 2);
+  std::cout << "Summed entries: " << one->entries() << " + " << two->entries() << " = " << one->plus(two)->entries() << std::endl;
+  std::cout << "Summed sum: " << one->sum() << " + " << two->sum() << " = " << one->plus(two)->sum() << std::endl;
+}
+
+void test_Summing() {
+  auto one = Sum::ing<std::string>([](std::string datum){return (double)datum.size();});
+  auto two = Sum::ing<std::string>([](std::string datum){return (double)datum.size();});
+  one->fill("hello");
+  two->fill("hey");
+  two->fill("there");
+
+  auto oneed = std::unique_ptr<Summed>(std::move(one));
+  auto twoed = std::unique_ptr<Summed>(std::move(two));
+
+  std::cout << "Summing entries: " << oneed->entries() << " + " << twoed->entries() << " = " << oneed->plus(twoed)->entries() << std::endl;
+  std::cout << "Summing sum: " << oneed->sum() << " + " << twoed->sum() << " = " << oneed->plus(twoed)->sum() << std::endl;
+}
 int main(int argc, char **argv) {
   test_Counted();
   test_Counting();
+
+  test_Summed();
+  test_Summing();
 
   return 0;
 }
