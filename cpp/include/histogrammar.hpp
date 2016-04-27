@@ -166,16 +166,17 @@ namespace histogrammar {
 
   //////////////////////////////////////////////////////////////// Bin/Binned/Binning
 
-  // class Binned;
-  // template <typename DATUM> class Binning;
+  template <typename V> class Binned;
+  template <typename DATUM, typename V> class Binning;
 
-  // class Bin : public Factory {
-  // public:
-  //   std::string name() { return "Bin"; }
-  //   static std::unique_ptr<Binned> ed(double low, double high, double entries, std::vector<std::unique_ptr<> > values);
-  //   template <typename DATUM>
-  //   static std::unique_ptr<Binning<DATUM> > ing(std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection = makeUnweighted<DATUM>());
-  // };
+  class Bin : public Factory {
+  public:
+    std::string name() { return "Bin"; }
+    template <typename V>
+    static std::unique_ptr<Binned<V> > ed(double low, double high, double entries, std::vector<std::unique_ptr<V> > values);
+    template <typename DATUM, typename V>
+    static std::unique_ptr<Binning<DATUM, V> > ing(int num, double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection = makeUnweighted<DATUM>(), std::unique_ptr<V> value = Count::ing<DATUM>());
+  };
 
   class BinMethods {
   public:
@@ -321,11 +322,18 @@ namespace histogrammar {
     }
   };
 
-  // std::unique_ptr<Binned> Bin::ed(double entries, double sum) { return std::unique_ptr<Binned>(new Binned(entries, sum)); }
+  template <typename V>
+  static std::unique_ptr<Binned<V> > ed(double low, double high, double entries, std::vector<std::unique_ptr<V> > values) {
+    return std::unique_ptr<Binned<V> >(new Binned<V>(low, high, entries, values));
+  }
 
-  // template <typename DATUM>
-  // std::unique_ptr<Binning<DATUM> > Bin::ing(std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection) { return std::unique_ptr<Binning<DATUM> >(new Binning<DATUM>(quantity, selection)); }
-
+  template <typename DATUM, typename V>
+  static std::unique_ptr<Binning<DATUM, V> > ing(int num, double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, std::unique_ptr<V> value) {
+    std::vector<std::unique_ptr<V> > values(num);
+    for (int i = 0;  i < num;  i++)
+      values[i] = value.zero();
+    return std::unique_ptr<DATUM, V>(new Binning<DATUM, V>(low, high, quantity, selection, 0.0, values));
+  }
 
 }
 
