@@ -31,11 +31,7 @@ void test_Counting() {
   one->fill("hello");
   two->fill("hey");
   two->fill("there");
-
-  auto oneed = std::unique_ptr<Counted>(std::move(one));
-  auto twoed = std::unique_ptr<Counted>(std::move(two));
-
-  std::cout << "Counting: " << oneed->entries() << " + " << twoed->entries() << " = " << oneed->plus(twoed)->entries() << std::endl;
+  std::cout << "Counting: " << one->entries() << " + " << two->entries() << " = " << one->plus(two)->entries() << std::endl;
 }
 
 void test_Summed() {
@@ -51,12 +47,8 @@ void test_Summing() {
   one->fill("hello");
   two->fill("hey");
   two->fill("there");
-
-  auto oneed = std::unique_ptr<Summed>(std::move(one));
-  auto twoed = std::unique_ptr<Summed>(std::move(two));
-
-  std::cout << "Summing entries: " << oneed->entries() << " + " << twoed->entries() << " = " << oneed->plus(twoed)->entries() << std::endl;
-  std::cout << "Summing sum: " << oneed->sum() << " + " << twoed->sum() << " = " << oneed->plus(twoed)->sum() << std::endl;
+  std::cout << "Summing entries: " << one->entries() << " + " << two->entries() << " = " << one->plus(two)->entries() << std::endl;
+  std::cout << "Summing sum: " << one->sum() << " + " << two->sum() << " = " << one->plus(two)->sum() << std::endl;
 }
 int main(int argc, char **argv) {
   test_Counted();
