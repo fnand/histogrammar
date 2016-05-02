@@ -1,10 +1,15 @@
 language: java
 
-before_install:
-  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-4.8
+      - g++-4.8
 
 install:
-  - sudo apt-get install g++-4.8  &&  alias g++=g++-4.8
+  - alias g++=g++-4.8
 
 env:
   - TEST_DIR=python; TEST_SCRIPT="python setup.py test"
