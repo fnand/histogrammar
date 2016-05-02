@@ -70,7 +70,7 @@ namespace histogrammar {
     double entries_;
     Counted(double entries) : entries_(entries) { }
   public:
-    Counted(const Counted &that) : entries_(that.entries()) { std::cout << "COPYING Counted" << std::endl; }
+    Counted(const Counted &that) : entries_(that.entries()) { }
     double entries() const { return entries_; }
     const Counted zero() const { return Counted(0.0); }
     const Counted operator+(const Counted &that) const { return Counted(entries() + that.entries()); }
@@ -83,7 +83,7 @@ namespace histogrammar {
     double entries_;
     Counting(double entries) : entries_(entries) { }
   public:
-    Counting(const Counting<DATUM> &that) : entries_(that.entries()) { std::cout << "COPYING Counting" << std::endl; }
+    Counting(const Counting<DATUM> &that) : entries_(that.entries()) { }
     double entries() const { return entries_; }
     const Counting<DATUM> zero() const { return Counting<DATUM>(0.0); }
     const Counting<DATUM> operator+(const Counting<DATUM> &that) const { return Counting<DATUM>(entries() + that.entries()); }
@@ -114,7 +114,7 @@ namespace histogrammar {
     double sum_;
     Summed(double entries, double sum) : entries_(entries), sum_(sum) { }
   public:
-    Summed(const Summed &that) : entries_(that.entries()), sum_(that.sum()) { std::cout << "COPYING Summed" << std::endl; }
+    Summed(const Summed &that) : entries_(that.entries()), sum_(that.sum()) { }
     double entries() const { return entries_; }
     double sum() const { return sum_; }
     const Summed zero() const { return Summed(0.0, 0.0); }
@@ -128,7 +128,7 @@ namespace histogrammar {
     double sum_;
     Summing(std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, double entries, double sum) : quantity(quantity), selection(selection), entries_(entries), sum_(sum) { }
   public:
-    Summing(const Summing &that) : quantity(that.quantity), selection(that.selection), entries_(that.entries()), sum_(that.sum()) { std::cout << "COPYING Summing" << std::endl; }
+    Summing(const Summing &that) : quantity(that.quantity), selection(that.selection), entries_(that.entries()), sum_(that.sum()) { }
     const std::function<double(DATUM)> quantity;
     const std::function<double(DATUM)> selection;
     double entries() const { return entries_; }
@@ -156,7 +156,7 @@ namespace histogrammar {
 
   class Bin : public Factory {
   public:
-    template <typename V> static const Binned<V> ed(double low, double high, double entries, std::vector<const V> values);
+    template <typename V> static const Binned<V> ed(double low, double high, double entries, std::vector<V> values);
     template <typename DATUM, typename V> static const Binning<DATUM, V> ing(int num, double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection = makeUnweighted<DATUM>(), V value = Count::ing<DATUM>());
   };
 
@@ -199,8 +199,8 @@ namespace histogrammar {
     double low_;
     double high_;
     double entries_;
-    std::vector<const V> values_;
-    Binned(double low, double high, double entries, std::vector<const V> values) : low_(low), high_(high), entries_(entries), values_(values) {
+    std::vector<V> values_;
+    Binned(double low, double high, double entries, std::vector<V> values) : low_(low), high_(high), entries_(entries), values_(values) {
       static_assert(std::is_base_of<Container<V>, V>::value, "Binned values type must be a Container");
       if (low >= high)
         throw std::invalid_argument(std::string("low (") + std::to_string(low) + std::string(") must be less than high (") + std::to_string(high) + std::string(")"));
@@ -210,32 +210,34 @@ namespace histogrammar {
         throw std::invalid_argument(std::string("entries (") + std::to_string(entries) + std::string(") cannot be negative"));
     }
   public:
+    Binned(const Binned &that) : low_(that.low()), high_(that.high()), entries_(that.entries()), values_(that.values()) { }
+
     int num() const { return values_.size(); }
     double low() const { return low_; }
     double high() const { return high_; }
     double entries() const { return entries_; }
-    const std::vector<const V> &values() const { return values_; }
+    const std::vector<V> &values() const { return values_; }
 
     const V &at(int index) const { return values_[index]; }
 
     const Binned<V> zero() const {
-      std::vector<const V> newvalues(num());
+      std::vector<V> newvalues;
       for (int i = 0;  i < num();  i++)
-        newvalues[i] = at(i).zero();
+        newvalues.push_back(at(i).zero());
       return Binned<V>(low_, high_, entries_, newvalues);
     }
 
     const Binned<V> operator+(const Binned<V> &that) const {
       if (low() != that.low())
-        throw std::invalid_argument(std::string("cannot add Binned because low differs (") + std::to_string(low()) + std::string(" vs ") + std::string(that.low()) + std::string(")"));
+        throw std::invalid_argument(std::string("cannot add Binned because low differs (") + std::to_string(low()) + std::string(" vs ") + std::to_string(that.low()) + std::string(")"));
       if (high() != that.high())
-        throw std::invalid_argument(std::string("cannot add Binned because high differs (") + std::to_string(high()) + std::string(" vs ") + std::string(that.high()) + std::string(")"));
+        throw std::invalid_argument(std::string("cannot add Binned because high differs (") + std::to_string(high()) + std::string(" vs ") + std::to_string(that.high()) + std::string(")"));
       if (num() != that.num())
-        throw std::invalid_argument(std::string("cannot add Binned because number of values differs (") + std::to_string(num()) + std::string(" vs ") + std::string(that.num()) + std::string(")"));
+        throw std::invalid_argument(std::string("cannot add Binned because number of values differs (") + std::to_string(num()) + std::string(" vs ") + std::to_string(that.num()) + std::string(")"));
 
-      std::vector<const V> newvalues(num());
+      std::vector<V> newvalues;
       for (int i = 0;  i < num();  i++)
-        newvalues[i] = at(i) + that.at(i);
+        newvalues.push_back(at(i) + that.at(i));
       return Binned<V>(low_, high_, entries_, newvalues);
     }
   };
@@ -246,8 +248,8 @@ namespace histogrammar {
     double low_;
     double high_;
     double entries_;
-    std::vector<const V> values_;
-    Binning(double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, double entries, std::vector<const V> values) : low_(low), high_(high), quantity(quantity), selection(selection), values_(values) {
+    std::vector<V> values_;
+    Binning(double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, double entries, std::vector<V> values) : low_(low), high_(high), quantity(quantity), selection(selection), entries_(entries), values_(values) {
       static_assert(std::is_base_of<Container<V>, V>::value, "Binning values type must be a Container");
       static_assert(std::is_base_of<Aggregation<DATUM>, V>::value, "Binning values type must have Aggregation for this data type");
       if (low >= high)
@@ -258,6 +260,8 @@ namespace histogrammar {
         throw std::invalid_argument(std::string("entries (") + std::to_string(entries) + std::string(") cannot be negative"));
     }
   public:
+    Binning(const Binning &that) : low_(that.low()), high_(that.high()), quantity(quantity), selection(selection), entries_(that.entries()), values_(that.values()) { }
+
     const std::function<double(DATUM)> quantity;
     const std::function<double(DATUM)> selection;
 
@@ -265,29 +269,29 @@ namespace histogrammar {
     double low() const { return low_; }
     double high() const { return high_; }
     double entries() const { return entries_; }
-    const std::vector<const V> values() const { return values_; }
+    const std::vector<V> values() const { return values_; }
 
     const V &at(int index) const { return values_[index]; }
 
     const Binning<DATUM, V> zero() const {
-      std::vector<const V> newvalues(num());
+      std::vector<V> newvalues;
       for (int i = 0;  i < num();  i++)
-        newvalues[i] = at(i).zero();
-      return Binning<DATUM, V>(low_, high_, entries_, newvalues);
+        newvalues.push_back(at(i).zero());
+      return Binning<DATUM, V>(low_, high_, quantity, selection, entries_, newvalues);
     }
 
     const Binning<DATUM, V> operator+(const Binning<DATUM, V> &that) const {
       if (low() != that.low())
-        throw std::invalid_argument(std::string("cannot add Binned because low differs (") + std::to_string(low()) + std::string(" vs ") + std::string(that.low()) + std::string(")"));
+        throw std::invalid_argument(std::string("cannot add Binned because low differs (") + std::to_string(low()) + std::string(" vs ") + std::to_string(that.low()) + std::string(")"));
       if (high() != that.high())
-        throw std::invalid_argument(std::string("cannot add Binned because high differs (") + std::to_string(high()) + std::string(" vs ") + std::string(that.high()) + std::string(")"));
+        throw std::invalid_argument(std::string("cannot add Binned because high differs (") + std::to_string(high()) + std::string(" vs ") + std::to_string(that.high()) + std::string(")"));
       if (num() != that.num())
-        throw std::invalid_argument(std::string("cannot add Binned because number of values differs (") + std::to_string(num()) + std::string(" vs ") + std::string(that.num()) + std::string(")"));
+        throw std::invalid_argument(std::string("cannot add Binned because number of values differs (") + std::to_string(num()) + std::string(" vs ") + std::to_string(that.num()) + std::string(")"));
 
-      std::vector<const V> newvalues(num());
+      std::vector<V> newvalues;
       for (int i = 0;  i < num();  i++)
-        newvalues[i] = at(i) + that.at(i);
-      return Binning<DATUM, V>(low_, high_, entries_, newvalues);
+        newvalues.push_back(at(i) + that.at(i));
+      return Binning<DATUM, V>(low_, high_, quantity, selection, entries_, newvalues);
     }
 
     void fill(DATUM datum, double weight = 1.0) {
@@ -303,19 +307,19 @@ namespace histogrammar {
         else if (nan(q))
           nullptr;
         else
-          values_[bin(q)]->fill(datum, w);
+          values_[bin(q)].fill(datum, w);
       }
     }
   };
 
-  template <typename V> static const Binned<V> ed(double low, double high, double entries, std::vector<const V> values) {
+  template <typename V> const Binned<V> Bin::ed(double low, double high, double entries, std::vector<V> values) {
     return Binned<V>(low, high, entries, values);
   }
 
-  template <typename DATUM, typename V> static const Binning<DATUM, V> ing(int num, double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, const V value) {
-    std::vector<const V> values(num);
+  template <typename DATUM, typename V> const Binning<DATUM, V> Bin::ing(int num, double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, const V value) {
+    std::vector<V> values;
     for (int i = 0;  i < num;  i++)
-      values[i] = value.zero();
+      values.push_back(value.zero());
     return Binning<DATUM, V>(low, high, quantity, selection, 0.0, values);
   }
 

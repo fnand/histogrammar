@@ -51,22 +51,28 @@ void test_Summing() {
   std::cout << "Summing sum: " << one.sum() << " + " << two.sum() << " = " << (one + two).sum() << std::endl;
 }
 
-void test_Bin() {
-  std::vector<const Counted> onevalues;
-  onevalues.push_back(Count::ed(1));
-  onevalues.push_back(Count::ed(2));
-  onevalues.push_back(Count::ed(3));
-
-  std::vector<const Counted> twovalues;
-  onevalues.push_back(Count::ed(3));
-  onevalues.push_back(Count::ed(2));
-  onevalues.push_back(Count::ed(1));
+void test_Binned() {
+  const std::vector<Counted> onevalues = {Count::ed(1), Count::ed(2), Count::ed(3)};
+  const std::vector<Counted> twovalues = {Count::ed(3), Count::ed(2), Count::ed(1)};
 
   auto one = Bin::ed(-3, 5, 0.0, onevalues);
   auto two = Bin::ed(-3, 5, 0.0, twovalues);
   auto three = one + two;
 
   std::cout << "Binned values: " << three.at(0).entries() << " " << three.at(1).entries() << " " << three.at(2).entries() << std::endl;
+}
+
+void test_Binning() {
+  auto one = Bin::ing<std::string, Counting<std::string> >(5, 0.5, 5.5, [](std::string datum){return (double)datum.size();});
+  auto two = Bin::ing<std::string, Counting<std::string> >(5, 0.5, 5.5, [](std::string datum){return (double)datum.size();});
+
+  one.fill("hello");
+  two.fill("hey");
+  two.fill("there");
+
+  auto three = one + two;
+
+  std::cout << "Binning values: " << three.at(0).entries() << " " << three.at(1).entries() << " " << three.at(2).entries() << " " << three.at(3).entries() << " " << three.at(4).entries() << std::endl;
 }
 
 int main(int argc, char **argv) {
@@ -76,7 +82,8 @@ int main(int argc, char **argv) {
   test_Summed();
   test_Summing();
 
-  test_Bin();
+  test_Binned();
+  test_Binning();
 
   return 0;
 }
