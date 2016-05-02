@@ -1,5 +1,2 @@
-# language: java
-# script: cd scala  &&  mvn test  &&  cd ..
-
-language: python
-script: cd python  &&  python setup.py test  &&  cd ..
+language: java
+script: cd python  &&  python setup.py test  &&  cd ..  &&  cd scala  &&  mvn test  &&  cd ..
