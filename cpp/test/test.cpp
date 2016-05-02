@@ -23,6 +23,8 @@ void test_Counted() {
   auto one = Count::ed(1);
   auto two = Count::ed(2);
   std::cout << "Counted: " << one.entries() << " + " << two.entries() << " = " << (one + two).entries() << std::endl;
+  auto zero = one.zero();
+  std::cout << "JSON " << one.toJson() << std::endl;
 }
 
 void test_Counting() {
@@ -32,6 +34,8 @@ void test_Counting() {
   two.fill("hey");
   two.fill("there");
   std::cout << "Counting: " << one.entries() << " + " << two.entries() << " = " << (one + two).entries() << std::endl;
+  auto zero = one.zero();
+  std::cout << "JSON " << one.toJson() << std::endl;
 }
 
 void test_Summed() {
@@ -39,6 +43,8 @@ void test_Summed() {
   auto two = Sum::ed(2, 2);
   std::cout << "Summed entries: " << one.entries() << " + " << two.entries() << " = " << (one + two).entries() << std::endl;
   std::cout << "Summed sum: " << one.sum() << " + " << two.sum() << " = " << (one + two).sum() << std::endl;
+  auto zero = one.zero();
+  std::cout << "JSON " << one.toJson() << std::endl;
 }
 
 void test_Summing() {
@@ -49,6 +55,8 @@ void test_Summing() {
   two.fill("there");
   std::cout << "Summing entries: " << one.entries() << " + " << two.entries() << " = " << (one + two).entries() << std::endl;
   std::cout << "Summing sum: " << one.sum() << " + " << two.sum() << " = " << (one + two).sum() << std::endl;
+  auto zero = one.zero();
+  std::cout << "JSON " << one.toJson() << std::endl;
 }
 
 void test_Binned() {
@@ -60,6 +68,9 @@ void test_Binned() {
   auto three = one + two;
 
   std::cout << "Binned values: " << three.at(0).entries() << " " << three.at(1).entries() << " " << three.at(2).entries() << std::endl;
+  auto zero = one.zero();
+
+  std::cout << "JSON " << three.toJson() << std::endl;
 }
 
 void test_Binning() {
@@ -73,6 +84,9 @@ void test_Binning() {
   auto three = one + two;
 
   std::cout << "Binning values: " << three.at(0).entries() << " " << three.at(1).entries() << " " << three.at(2).entries() << " " << three.at(3).entries() << " " << three.at(4).entries() << std::endl;
+  auto zero = one.zero();
+
+  std::cout << "JSON " << three.toJson() << std::endl;
 }
 
 int main(int argc, char **argv) {

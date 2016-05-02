@@ -36,16 +36,23 @@ namespace histogrammar {
 
   class Factory {
   public:
-    // static std::string name();
     // virtual int fromJsonFragment() = 0;   // FIXME
     // static int fromJson();                // FIXME
   };
 
   template <typename CONTAINER> class Container {
   public:
+    virtual const std::string name() const = 0;
     virtual double entries() const = 0;
     virtual const CONTAINER zero() const = 0;
     virtual const CONTAINER operator+(const CONTAINER &that) const = 0;
+    virtual const json toJsonFragment() const = 0;
+    const json toJson() const {
+      return {
+        {"type", name()},
+        {"data", toJsonFragment()},
+      };
+    }
   };
 
   template <typename DATUM> class Aggregation {
@@ -71,9 +78,13 @@ namespace histogrammar {
     Counted(double entries) : entries_(entries) { }
   public:
     Counted(const Counted &that) : entries_(that.entries()) { }
+    const std::string name() const { return "Count"; }
     double entries() const { return entries_; }
     const Counted zero() const { return Counted(0.0); }
     const Counted operator+(const Counted &that) const { return Counted(entries() + that.entries()); }
+    const json toJsonFragment() const {
+      return entries();
+    }
   };
 
   template <typename DATUM>
@@ -84,11 +95,15 @@ namespace histogrammar {
     Counting(double entries) : entries_(entries) { }
   public:
     Counting(const Counting<DATUM> &that) : entries_(that.entries()) { }
+    const std::string name() const { return "Count"; }
     double entries() const { return entries_; }
     const Counting<DATUM> zero() const { return Counting<DATUM>(0.0); }
     const Counting<DATUM> operator+(const Counting<DATUM> &that) const { return Counting<DATUM>(entries() + that.entries()); }
     void fill(DATUM datum, double weight = 1.0) {
       entries_ += weight;
+    }
+    const json toJsonFragment() const {
+      return entries();
     }
   };
 
@@ -115,10 +130,17 @@ namespace histogrammar {
     Summed(double entries, double sum) : entries_(entries), sum_(sum) { }
   public:
     Summed(const Summed &that) : entries_(that.entries()), sum_(that.sum()) { }
+    const std::string name() const { return "Sum"; }
     double entries() const { return entries_; }
     double sum() const { return sum_; }
     const Summed zero() const { return Summed(0.0, 0.0); }
     const Summed operator+(const Summed &that) const { return Summed(entries() + that.entries(), sum() + that.sum()); }
+    const json toJsonFragment() const {
+      return {
+        {"entries", entries()},
+        {"sum", sum()},
+      };
+    }
   };
 
   template <typename DATUM> class Summing : public Container<Summing<DATUM> >, public Aggregation<DATUM> {
@@ -131,6 +153,7 @@ namespace histogrammar {
     Summing(const Summing &that) : quantity(that.quantity), selection(that.selection), entries_(that.entries()), sum_(that.sum()) { }
     const std::function<double(DATUM)> quantity;
     const std::function<double(DATUM)> selection;
+    const std::string name() const { return "Sum"; }
     double entries() const { return entries_; }
     double sum() const { return sum_; }
     const Summing<DATUM> zero() const { return Summing<DATUM>(quantity, selection, 0.0, 0.0); }
@@ -142,6 +165,12 @@ namespace histogrammar {
         entries_ += w;
         sum_ += q * w;
       }
+    }
+    const json toJsonFragment() const {
+      return {
+        {"entries", entries()},
+        {"sum", sum()},
+      };
     }
   };
 
@@ -211,6 +240,7 @@ namespace histogrammar {
     }
   public:
     Binned(const Binned &that) : low_(that.low()), high_(that.high()), entries_(that.entries()), values_(that.values()) { }
+    const std::string name() const { return "Bin"; }
 
     int num() const { return values_.size(); }
     double low() const { return low_; }
@@ -240,6 +270,19 @@ namespace histogrammar {
         newvalues.push_back(at(i) + that.at(i));
       return Binned<V>(low_, high_, entries_, newvalues);
     }
+
+    const json toJsonFragment() const {
+      std::vector<json> newvalues;
+      for (int i = 0;  i < num();  i++)
+        newvalues.push_back(at(i).toJsonFragment());
+      return {
+        {"low", low()},
+        {"high", high()},
+        {"entries", entries()},
+        {"values:type", values_[0].name()},
+        {"values", newvalues},
+      };
+    }
   };
 
   template <typename DATUM, typename V> class Binning : public Container<Binning<DATUM, V> >, public Aggregation<DATUM>, public BinMethods {
@@ -261,6 +304,7 @@ namespace histogrammar {
     }
   public:
     Binning(const Binning &that) : low_(that.low()), high_(that.high()), quantity(quantity), selection(selection), entries_(that.entries()), values_(that.values()) { }
+    const std::string name() const { return "Bin"; }
 
     const std::function<double(DATUM)> quantity;
     const std::function<double(DATUM)> selection;
@@ -309,6 +353,19 @@ namespace histogrammar {
         else
           values_[bin(q)].fill(datum, w);
       }
+    }
+
+    const json toJsonFragment() const {
+      std::vector<json> newvalues;
+      for (int i = 0;  i < num();  i++)
+        newvalues.push_back(at(i).toJsonFragment());
+      return {
+        {"low", low()},
+        {"high", high()},
+        {"entries", entries()},
+        {"values:type", values_[0].name()},
+        {"values", newvalues},
+      };
     }
   };
 
