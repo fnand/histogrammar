@@ -34,10 +34,18 @@ namespace histogrammar {
 
   //////////////////////////////////////////////////////////////// general definition of an container, its factory, and mix-in
 
+  template <typename CONTAINER> class Container;
+
   class Factory {
   public:
-    // virtual int fromJsonFragment() = 0;   // FIXME
-    // static int fromJson();                // FIXME
+    // static const Factory fromName(std::string name);
+    // virtual const Container fromJsonFragment(json &j) const = 0;
+
+    // virtual const CONTAINER fromJsonFragment(json j) = 0;
+    // static const CONTAINER fromJson(json j) {
+    //   Factory factory = fromName(j["type"]);
+    //   return factory.fromJsonFragment(j["data"]);
+    // }
   };
 
   template <typename CONTAINER> class Container {
@@ -67,8 +75,10 @@ namespace histogrammar {
 
   class Count : public Factory {
   public:
+    const std::string name() const { return "Count"; }
     static const Counted ed(double entries);
     template <typename DATUM> static const Counting<DATUM> ing();
+    // const Container fromJsonFragment(json &j) const;
   };
 
   class Counted : public Container<Counted> {
@@ -111,6 +121,10 @@ namespace histogrammar {
 
   template <typename DATUM> const Counting<DATUM> Count::ing() { return Counting<DATUM>(0.0); }
 
+  // const Container Count::fromJsonFragment(json &j) const {
+  //   return Counted(j.get<double>());
+  // }
+
   //////////////////////////////////////////////////////////////// Sum/Summed/Summing
 
   class Summed;
@@ -120,6 +134,7 @@ namespace histogrammar {
   public:
     static const Summed ed(double entries, double sum);
     template <typename DATUM> static const Summing<DATUM> ing(std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection = makeUnweighted<DATUM>());
+    // const Container fromJsonFragment(json &j) const;
   };
 
   class Summed : public Container<Summed> {
@@ -130,6 +145,7 @@ namespace histogrammar {
     Summed(double entries, double sum) : entries_(entries), sum_(sum) { }
   public:
     Summed(const Summed &that) : entries_(that.entries()), sum_(that.sum()) { }
+    // Summed(const json &j) : entries_(j["entries"].get<double>()), sum_(j["sum"].get<double>()) { }
     const std::string name() const { return "Sum"; }
     double entries() const { return entries_; }
     double sum() const { return sum_; }
@@ -178,6 +194,10 @@ namespace histogrammar {
 
   template <typename DATUM> const Summing<DATUM> Sum::ing(std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection) { return Summing<DATUM>(quantity, selection, 0.0, 0.0); }
 
+  // const Container Sum::fromJsonFragment(json &j) const {
+  //   return Summed(j["entries"].get<double>(), j["sum"].get<double>());
+  // }
+
   //////////////////////////////////////////////////////////////// Bin/Binned/Binning
 
   template <typename V> class Binned;
@@ -187,6 +207,7 @@ namespace histogrammar {
   public:
     template <typename V> static const Binned<V> ed(double low, double high, double entries, std::vector<V> values);
     template <typename DATUM, typename V> static const Binning<DATUM, V> ing(int num, double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection = makeUnweighted<DATUM>(), V value = Count::ing<DATUM>());
+    // const Container fromJsonFragment(json &j) const;
   };
 
   class BinMethods {
@@ -240,6 +261,7 @@ namespace histogrammar {
     }
   public:
     Binned(const Binned &that) : low_(that.low()), high_(that.high()), entries_(that.entries()), values_(that.values()) { }
+
     const std::string name() const { return "Bin"; }
 
     int num() const { return values_.size(); }
@@ -379,6 +401,28 @@ namespace histogrammar {
       values.push_back(value.zero());
     return Binning<DATUM, V>(low, high, quantity, selection, 0.0, values);
   }
+
+  // const Container Bin::fromJsonFragment(json &j) {
+  //   Factory valuesFactory = Factory::fromName(j["values:type"]);
+  //   json jv = j["values"];
+  //   std::vector<Container> values;
+  //   for (int i = 0;  i < jv.size();  i++)
+  //     values.push_back(valuesFactory.fromJsonFragment(jv[i]));
+  //   return Binned<Container>(j["low"].get<double>(), j["high"].get<double>(), j["entries"].get<double>(), values);
+  // }
+
+  //////////////////////////////////////////////////////////////// definition of Factory::fromName
+
+  // const Factory Factory::fromName(std::string name) {
+  //   if (name == std::string("Count"))
+  //     return Count();
+  //   else if (name == std::string("Sum"))
+  //     return Sum();
+  //   else if (name == std::string("Bin"))
+  //     return Bin();
+  //   else
+  //     throw std::invalid_argument(std::string("unrecognized container: ") + name);
+  // }
 
 }
 

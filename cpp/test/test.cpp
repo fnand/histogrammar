@@ -69,7 +69,6 @@ void test_Binned() {
 
   std::cout << "Binned values: " << three.at(0).entries() << " " << three.at(1).entries() << " " << three.at(2).entries() << std::endl;
   auto zero = one.zero();
-
   std::cout << "JSON " << three.toJson() << std::endl;
 }
 
