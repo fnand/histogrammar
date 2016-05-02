@@ -13,9 +13,8 @@
 # limitations under the License.
 
 all:
-	gcc --version
-	g++ --version
-	g++ test/test.cpp -std=c++11 -Iinclude -o test_histogrammar
+	$(CXX) --version
+	$(CXX) test/test.cpp -std=c++11 -Iinclude -o test_histogrammar
 	./test_histogrammar
 
 clean:
