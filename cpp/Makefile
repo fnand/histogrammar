@@ -14,6 +14,7 @@
 
 all:
 	$(CXX) --version
+	echo "HERE"
 	$(CXX) test/test.cpp -std=c++11 -Iinclude -o test_histogrammar
 	./test_histogrammar
 
