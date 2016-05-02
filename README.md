@@ -179,7 +179,7 @@ Aggregation primitives are also easier to implement than graphics, so Histogramm
 
 ## Status
 
-Last released version was 0.3. The following refers to the git master branch.
+Last released version was 0.4. The following refers to the git master branch.
 
 | Primitive              | Scala | Python  | C++     | SQL     | R       | Javascript | CUDA/OpenCL |
 |:-----------------------|:------|:--------|:--------|:--------|:--------|:-----------|:------------|
