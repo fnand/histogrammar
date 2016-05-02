@@ -1,2 +1,5 @@
 language: java
-script: cd python  &&  python setup.py test  &&  cd ..  &&  cd scala  &&  mvn test  &&  cd ..
+env:
+  - TEST_DIR=python; TEST_SCRIPT="python setup.py test"
+  - TEST_DIR=scala;  TEST_SCRIPT="mvn test"
+script: cd $TEST_DIR  &&  $TEST_SCRIPT  &&  cd ..
