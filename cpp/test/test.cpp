@@ -24,7 +24,7 @@ void test_Counted() {
   auto two = Count::ed(2);
   std::cout << "Counted: " << one.entries() << " + " << two.entries() << " = " << (one + two).entries() << std::endl;
   auto zero = one.zero();
-  std::cout << "JSON " << one.toJson() << std::endl;
+  assert(Count::fromJson(one.toJson()) == one);
 }
 
 void test_Counting() {
@@ -35,7 +35,7 @@ void test_Counting() {
   two.fill("there");
   std::cout << "Counting: " << one.entries() << " + " << two.entries() << " = " << (one + two).entries() << std::endl;
   auto zero = one.zero();
-  std::cout << "JSON " << one.toJson() << std::endl;
+  assert(Count::fromJson(Count::fromJson(one.toJson()).toJson()) == Count::fromJson(one.toJson()));
 }
 
 void test_Summed() {
@@ -44,7 +44,7 @@ void test_Summed() {
   std::cout << "Summed entries: " << one.entries() << " + " << two.entries() << " = " << (one + two).entries() << std::endl;
   std::cout << "Summed sum: " << one.sum() << " + " << two.sum() << " = " << (one + two).sum() << std::endl;
   auto zero = one.zero();
-  std::cout << "JSON " << one.toJson() << std::endl;
+  assert(Sum::fromJson(one.toJson()) == one);
 }
 
 void test_Summing() {
@@ -56,7 +56,7 @@ void test_Summing() {
   std::cout << "Summing entries: " << one.entries() << " + " << two.entries() << " = " << (one + two).entries() << std::endl;
   std::cout << "Summing sum: " << one.sum() << " + " << two.sum() << " = " << (one + two).sum() << std::endl;
   auto zero = one.zero();
-  std::cout << "JSON " << one.toJson() << std::endl;
+  assert(Sum::fromJson(Sum::fromJson(one.toJson()).toJson()) == Sum::fromJson(one.toJson()));
 }
 
 void test_Binned() {
@@ -69,7 +69,7 @@ void test_Binned() {
 
   std::cout << "Binned values: " << three.at(0).entries() << " " << three.at(1).entries() << " " << three.at(2).entries() << std::endl;
   auto zero = one.zero();
-  std::cout << "JSON " << three.toJson() << std::endl;
+  assert(Bin::fromJson<Counted>(one.toJson()) == one);
 }
 
 void test_Binning() {
@@ -84,11 +84,12 @@ void test_Binning() {
 
   std::cout << "Binning values: " << three.at(0).entries() << " " << three.at(1).entries() << " " << three.at(2).entries() << " " << three.at(3).entries() << " " << three.at(4).entries() << std::endl;
   auto zero = one.zero();
-
-  std::cout << "JSON " << three.toJson() << std::endl;
+  assert(Bin::fromJson<Counted>(Bin::fromJson<Counted>(one.toJson()).toJson()) == Bin::fromJson<Counted>(one.toJson()));
 }
 
 int main(int argc, char **argv) {
+  std::cout << "Version " << VERSION << std::endl;
+
   test_Counted();
   test_Counting();
 

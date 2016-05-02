@@ -3,5 +3,6 @@ language: java
 env:
   - TEST_DIR=python; TEST_SCRIPT="python setup.py test"
   - TEST_DIR=scala;  TEST_SCRIPT="mvn test"
+  - TEST_DIR=cpp;    TEST_SCRIPT="make"
 
 script: cd $TEST_DIR  &&  $TEST_SCRIPT  &&  cd ..

@@ -179,12 +179,12 @@ Aggregation primitives are also easier to implement than graphics, so Histogramm
 
 ## Status
 
-Last released version was 0.2. The following refers to the git master branch.
+Last released version was 0.3. The following refers to the git master branch.
 
 | Primitive              | Scala | Python  | C++     | SQL     | R       | Javascript | CUDA/OpenCL |
 |:-----------------------|:------|:--------|:--------|:--------|:--------|:-----------|:------------|
-| Count                  | done  | done    |         |         |         |            |             |
-| Sum                    | done  | done    |         |         |         |            |             |
+| Count                  | done  | done    | done    |         |         |            |             |
+| Sum                    | done  | done    | done    |         |         |            |             |
 | Average                | done  | done    |         |         |         |            |             |
 | Deviate                | done  | done    |         |         |         |            |             |
 | AbsoluteErr            | done  | done    |         |         |         |            |             |
@@ -192,11 +192,10 @@ Last released version was 0.2. The following refers to the git master branch.
 | Maximize               | done  | done    |         |         |         |            |             |
 | Quantile               | done  |         |         |         |         |            |             |
 | Bag                    | done  | done    |         |         |         |            |             |
-| Bin                    | done  | done    |         |         |         |            |             |
+| Bin                    | done  | done    | done    |         |         |            |             |
 | SparselyBin            | done  | done    |         |         |         |            |             |
 | CentrallyBin           | done  |         |         |         |         |            |             |
 | AdaptivelyBin          | done  |         |         |         |         |            |             |
-| IrregularlyBin         |       |         |         |         |         |            |             |
 | Fraction               | done  | 6       |         |         |         |            |             |
 | Stack                  | done  | 7       |         |         |         |            |             |
 | Partition              | done  | 8       |         |         |         |            |             |
