@@ -35,6 +35,7 @@ namespace histogrammar {
   //////////////////////////////////////////////////////////////// general definition of an container, its factory, and mix-in
 
   template <typename CONTAINER> class Container;
+  class FromJson;
 
   class Factory {
   public:
@@ -46,6 +47,8 @@ namespace histogrammar {
     //   Factory factory = fromName(j["type"]);
     //   return factory.fromJsonFragment(j["data"]);
     // }
+
+    // virtual const Deserialized fromJsonFragment(json j) const = 0;
   };
 
   template <typename CONTAINER> class Container {
@@ -68,6 +71,13 @@ namespace histogrammar {
     virtual void fill(DATUM datum, double weight = 1.0) = 0;
   };
 
+  // class Deserialized {
+  // public:
+  //   template <typename CONTAINER> CONTAINER *as() {
+  //     return dynamic_cast<CONTAINER&>(&*this);
+  //   }
+  // };
+
   //////////////////////////////////////////////////////////////// Count/Counted/Counting
 
   class Counted;
@@ -78,7 +88,7 @@ namespace histogrammar {
     const std::string name() const { return "Count"; }
     static const Counted ed(double entries);
     template <typename DATUM> static const Counting<DATUM> ing();
-    // const Container fromJsonFragment(json &j) const;
+    // const Deserialized fromJsonFragment(json &j) const;
   };
 
   class Counted : public Container<Counted> {
@@ -121,7 +131,7 @@ namespace histogrammar {
 
   template <typename DATUM> const Counting<DATUM> Count::ing() { return Counting<DATUM>(0.0); }
 
-  // const Container Count::fromJsonFragment(json &j) const {
+  // const Deserialized Count::fromJsonFragment(json &j) const {
   //   return Counted(j.get<double>());
   // }
 
@@ -134,7 +144,7 @@ namespace histogrammar {
   public:
     static const Summed ed(double entries, double sum);
     template <typename DATUM> static const Summing<DATUM> ing(std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection = makeUnweighted<DATUM>());
-    // const Container fromJsonFragment(json &j) const;
+    // const Deserialized fromJsonFragment(json &j) const;
   };
 
   class Summed : public Container<Summed> {
@@ -194,7 +204,7 @@ namespace histogrammar {
 
   template <typename DATUM> const Summing<DATUM> Sum::ing(std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection) { return Summing<DATUM>(quantity, selection, 0.0, 0.0); }
 
-  // const Container Sum::fromJsonFragment(json &j) const {
+  // const Deserialized Sum::fromJsonFragment(json &j) const {
   //   return Summed(j["entries"].get<double>(), j["sum"].get<double>());
   // }
 
@@ -207,7 +217,7 @@ namespace histogrammar {
   public:
     template <typename V> static const Binned<V> ed(double low, double high, double entries, std::vector<V> values);
     template <typename DATUM, typename V> static const Binning<DATUM, V> ing(int num, double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection = makeUnweighted<DATUM>(), V value = Count::ing<DATUM>());
-    // const Container fromJsonFragment(json &j) const;
+    // const Deserialized fromJsonFragment(json &j) const;
   };
 
   class BinMethods {
@@ -251,7 +261,7 @@ namespace histogrammar {
     double entries_;
     std::vector<V> values_;
     Binned(double low, double high, double entries, std::vector<V> values) : low_(low), high_(high), entries_(entries), values_(values) {
-      static_assert(std::is_base_of<Container<V>, V>::value, "Binned values type must be a Container");
+      // static_assert(std::is_base_of<Container<V>, V>::value, "Binned values type must be a Container");
       if (low >= high)
         throw std::invalid_argument(std::string("low (") + std::to_string(low) + std::string(") must be less than high (") + std::to_string(high) + std::string(")"));
       if (values.size() < 1)
@@ -315,8 +325,8 @@ namespace histogrammar {
     double entries_;
     std::vector<V> values_;
     Binning(double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, double entries, std::vector<V> values) : low_(low), high_(high), quantity(quantity), selection(selection), entries_(entries), values_(values) {
-      static_assert(std::is_base_of<Container<V>, V>::value, "Binning values type must be a Container");
-      static_assert(std::is_base_of<Aggregation<DATUM>, V>::value, "Binning values type must have Aggregation for this data type");
+      // static_assert(std::is_base_of<Container<V>, V>::value, "Binning values type must be a Container");
+      // static_assert(std::is_base_of<Aggregation<DATUM>, V>::value, "Binning values type must have Aggregation for this data type");
       if (low >= high)
         throw std::invalid_argument(std::string("low (") + std::to_string(low) + std::string(") must be less than high (") + std::to_string(high) + std::string(")"));
       if (values.size() < 1)
@@ -402,13 +412,13 @@ namespace histogrammar {
     return Binning<DATUM, V>(low, high, quantity, selection, 0.0, values);
   }
 
-  // const Container Bin::fromJsonFragment(json &j) {
+  // const Deserialized Bin::fromJsonFragment(json &j) const {
   //   Factory valuesFactory = Factory::fromName(j["values:type"]);
   //   json jv = j["values"];
-  //   std::vector<Container> values;
+  //   std::vector<Container<Deserialized> > values;
   //   for (int i = 0;  i < jv.size();  i++)
   //     values.push_back(valuesFactory.fromJsonFragment(jv[i]));
-  //   return Binned<Container>(j["low"].get<double>(), j["high"].get<double>(), j["entries"].get<double>(), values);
+  //   return Binned<Deserialized>(j["low"].get<double>(), j["high"].get<double>(), j["entries"].get<double>(), values);
   // }
 
   //////////////////////////////////////////////////////////////// definition of Factory::fromName
