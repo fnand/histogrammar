@@ -1,5 +1,8 @@
 language: java
 
+before_install:
+  - sudo apt-get install gcc-4.7
+
 env:
   - TEST_DIR=python; TEST_SCRIPT="python setup.py test"
   - TEST_DIR=scala;  TEST_SCRIPT="mvn test"
