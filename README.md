@@ -192,7 +192,7 @@ Last released version was 0.4. The following refers to the git master branch.
 | Maximize               | done  | done    |         |         |         |            |             |
 | Quantile               | done  |         |         |         |         |            |             |
 | Bag                    | done  | done    |         |         |         |            |             |
-| Bin                    | done  | done    | done    |         |         |            |             |
+| Bin                    | done  | done    | now actually done    |         |         |            |             |
 | SparselyBin            | done  | done    |         |         |         |            |             |
 | CentrallyBin           | done  |         |         |         |         |            |             |
 | AdaptivelyBin          | done  |         |         |         |         |            |             |

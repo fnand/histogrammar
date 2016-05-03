@@ -242,21 +242,21 @@ namespace histogrammar {
 
   //////////////////////////////////////////////////////////////// Bin/Binned/Binning
 
-  template <typename V> class Binned;
-  template <typename DATUM, typename V> class Binning;
+  template <typename V, typename U, typename O, typename N> class Binned;
+  template <typename DATUM, typename V, typename U, typename O, typename N> class Binning;
 
   class Bin : public Factory {
   public:
-    template <typename V> using ed_type = Binned<V>;
-    template <typename DATUM, typename V> using ing_type = Binning<DATUM, V>;
+    template <typename V, typename U, typename O, typename N> using ed_type = Binned<V, U, O, N>;
+    template <typename DATUM, typename V, typename U, typename O, typename N> using ing_type = Binning<DATUM, V, U, O, N>;
 
     static const std::string name() { return "Bin"; }
 
-    template <typename V> static const ed_type<V> ed(double low, double high, double entries, std::vector<V> values);
-    template <typename DATUM, typename V> static const ing_type<DATUM, V> ing(int num, double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection = makeUnweighted<DATUM>(), V value = Count::ing<DATUM>());
+    template <typename V, typename U, typename O, typename N> static const ed_type<V, U, O, N> ed(double low, double high, double entries, std::vector<V> values, U underflow, O overflow, N nanflow);
+    template <typename DATUM, typename V, typename U, typename O, typename N> static const ing_type<DATUM, V, U, O, N> ing(int num, double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection = makeUnweighted<DATUM>(), V value = Count::ing<DATUM>(), U underflow = Count::ing<DATUM>(), O overflow = Count::ing<DATUM>(), N nanflow = Count::ing<DATUM>());
 
-    template <typename V> static const ed_type<V> fromJsonFragment(const json &j);
-    template <typename V> static const ed_type<V> fromJson(const json &j);
+    template <typename V, typename U, typename O, typename N> static const ed_type<V, U, O, N> fromJsonFragment(const json &j);
+    template <typename V, typename U, typename O, typename N> static const ed_type<V, U, O, N> fromJson(const json &j);
   };
 
   class BinMethods {
@@ -292,15 +292,21 @@ namespace histogrammar {
     }
   };
 
-  template <typename V> class Binned : public Container<Binned<V> >, public BinMethods {
+  template <typename V, typename U, typename O, typename N> class Binned : public Container<Binned<V, U, O, N> >, public BinMethods {
     friend class Bin;
   protected:
     double low_;
     double high_;
     double entries_;
     std::vector<V> values_;
-    Binned(double low, double high, double entries, std::vector<V> values) : low_(low), high_(high), entries_(entries), values_(values) {
+    U underflow_;
+    O overflow_;
+    N nanflow_;
+    Binned(double low, double high, double entries, std::vector<V> values, U underflow, O overflow, N nanflow) : low_(low), high_(high), entries_(entries), values_(values), underflow_(underflow), overflow_(overflow), nanflow_(nanflow) {
       static_assert(std::is_base_of<Container<V>, V>::value, "Binned values type must be a Container");
+      static_assert(std::is_base_of<Container<U>, U>::value, "Binned underflow type must be a Container");
+      static_assert(std::is_base_of<Container<O>, O>::value, "Binned overflow type must be a Container");
+      static_assert(std::is_base_of<Container<N>, N>::value, "Binned nanflow type must be a Container");
       if (low >= high)
         throw std::invalid_argument(std::string("low (") + std::to_string(low) + std::string(") must be less than high (") + std::to_string(high) + std::string(")"));
       if (values.size() < 1)
@@ -310,7 +316,7 @@ namespace histogrammar {
     }
   public:
     using factory_type = Bin;
-    Binned(const Binned &that) : low_(that.low()), high_(that.high()), entries_(that.entries()), values_(that.values()) { }
+    Binned(const Binned &that) : low_(that.low()), high_(that.high()), entries_(that.entries()), values_(that.values()), underflow_(that.underflow()), overflow_(that.overflow()), nanflow_(that.nanflow()) { }
 
     const std::string name() const { return factory_type::name(); }
 
@@ -319,18 +325,21 @@ namespace histogrammar {
     double high() const { return high_; }
     double entries() const { return entries_; }
     const std::vector<V> &values() const { return values_; }
+    const U &underflow() const { return underflow_; }
+    const O &overflow() const { return overflow_; }
+    const N &nanflow() const { return nanflow_; }
 
     const V &at(int index) const { return values_[index]; }
 
-    const Binned<V> zero() const {
+    const Binned<V, U, O, N> zero() const {
       std::vector<V> newvalues;
       newvalues.reserve(num());
       for (int i = 0;  i < num();  i++)
         newvalues.push_back(at(i).zero());
-      return Binned<V>(low_, high_, entries_, newvalues);
+      return Binned<V, U, O, N>(low_, high_, entries_, newvalues, underflow_.zero(), overflow_.zero(), nanflow_.zero());
     }
 
-    const Binned<V> operator+(const Binned<V> &that) const {
+    const Binned<V, U, O, N> operator+(const Binned<V, U, O, N> &that) const {
       if (low() != that.low())
         throw std::invalid_argument(std::string("cannot add Binned because low differs (") + std::to_string(low()) + std::string(" vs ") + std::to_string(that.low()) + std::string(")"));
       if (high() != that.high())
@@ -342,11 +351,11 @@ namespace histogrammar {
       newvalues.reserve(num());
       for (int i = 0;  i < num();  i++)
         newvalues.push_back(at(i) + that.at(i));
-      return Binned<V>(low_, high_, entries_, newvalues);
+      return Binned<V, U, O, N>(low_, high_, entries_, newvalues, underflow() + that.underflow(), overflow() + that.overflow(), nanflow() + that.nanflow());
     }
 
-    const bool operator==(const Binned<V> &that) const {
-      return low() == that.low()  &&  high() == that.high()  &&  entries() == that.entries()  &&  values() == that.values();
+    const bool operator==(const Binned<V, U, O, N> &that) const {
+      return low() == that.low()  &&  high() == that.high()  &&  entries() == that.entries()  &&  values() == that.values()  &&  underflow() == that.underflow()  &&  overflow() == that.overflow()  &&  nanflow() == that.nanflow();
     }
 
     const json toJsonFragment() const {
@@ -360,20 +369,38 @@ namespace histogrammar {
         {"entries", entries()},
         {"values:type", values_[0].name()},
         {"values", newvalues},
+        {"underflow:type", underflow_.name()},
+        {"underflow", underflow_.toJsonFragment()},
+        {"overflow:type", overflow_.name()},
+        {"overflow", overflow_.toJsonFragment()},
+        {"nanflow:type", nanflow_.name()},
+        {"nanflow", nanflow_.toJsonFragment()},
       };
     }
   };
 
-  template <typename DATUM, typename V> class Binning : public Container<Binning<DATUM, V> >, public Aggregation<DATUM>, public BinMethods {
+  template <typename DATUM, typename V, typename U, typename O, typename N> class Binning : public Container<Binning<DATUM, V, U, O, N> >, public Aggregation<DATUM>, public BinMethods {
     friend class Bin;
   private:
     double low_;
     double high_;
     double entries_;
     std::vector<V> values_;
-    Binning(double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, double entries, std::vector<V> values) : low_(low), high_(high), quantity(quantity), selection(selection), entries_(entries), values_(values) {
+    U underflow_;
+    O overflow_;
+    N nanflow_;
+
+    Binning(double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, double entries, std::vector<V> values, U underflow, O overflow, N nanflow) : low_(low), high_(high), quantity(quantity), selection(selection), entries_(entries), values_(values), underflow_(underflow), overflow_(overflow), nanflow_(nanflow) {
+
       static_assert(std::is_base_of<Container<V>, V>::value, "Binning values type must be a Container");
       static_assert(std::is_base_of<Aggregation<DATUM>, V>::value, "Binning values type must have Aggregation for this data type");
+      static_assert(std::is_base_of<Container<U>, U>::value, "Binning underflow type must be a Container");
+      static_assert(std::is_base_of<Aggregation<DATUM>, U>::value, "Binning underflow type must have Aggregation for this data type");
+      static_assert(std::is_base_of<Container<O>, O>::value, "Binning overflow type must be a Container");
+      static_assert(std::is_base_of<Aggregation<DATUM>, O>::value, "Binning overflow type must have Aggregation for this data type");
+      static_assert(std::is_base_of<Container<N>, N>::value, "Binning nanflow type must be a Container");
+      static_assert(std::is_base_of<Aggregation<DATUM>, N>::value, "Binning nanflow type must have Aggregation for this data type");
+
       if (low >= high)
         throw std::invalid_argument(std::string("low (") + std::to_string(low) + std::string(") must be less than high (") + std::to_string(high) + std::string(")"));
       if (values.size() < 1)
@@ -381,9 +408,10 @@ namespace histogrammar {
       if (entries < 0.0)
         throw std::invalid_argument(std::string("entries (") + std::to_string(entries) + std::string(") cannot be negative"));
     }
+
   public:
     using factory_type = Bin;
-    Binning(const Binning &that) : low_(that.low()), high_(that.high()), quantity(quantity), selection(selection), entries_(that.entries()), values_(that.values()) { }
+    Binning(const Binning &that) : low_(that.low()), high_(that.high()), quantity(quantity), selection(selection), entries_(that.entries()), values_(that.values()), underflow_(that.underflow()), overflow_(that.overflow()), nanflow_(that.nanflow()) { }
     const std::string name() const { return factory_type::name(); }
 
     const std::function<double(DATUM)> quantity;
@@ -394,18 +422,21 @@ namespace histogrammar {
     double high() const { return high_; }
     double entries() const { return entries_; }
     const std::vector<V> values() const { return values_; }
+    const U underflow() const { return underflow_; }
+    const O overflow() const { return overflow_; }
+    const N nanflow() const { return nanflow_; }
 
     const V &at(int index) const { return values_[index]; }
 
-    const Binning<DATUM, V> zero() const {
+    const Binning<DATUM, V, U, O, N> zero() const {
       std::vector<V> newvalues;
       newvalues.reserve(num());
       for (int i = 0;  i < num();  i++)
         newvalues.push_back(at(i).zero());
-      return Binning<DATUM, V>(low_, high_, quantity, selection, entries_, newvalues);
+      return Binning<DATUM, V, U, O, N>(low_, high_, quantity, selection, entries_, newvalues, underflow_, overflow_, nanflow_);
     }
 
-    const Binning<DATUM, V> operator+(const Binning<DATUM, V> &that) const {
+    const Binning<DATUM, V, U, O, N> operator+(const Binning<DATUM, V, U, O, N> &that) const {
       if (low() != that.low())
         throw std::invalid_argument(std::string("cannot add Binned because low differs (") + std::to_string(low()) + std::string(" vs ") + std::to_string(that.low()) + std::string(")"));
       if (high() != that.high())
@@ -417,11 +448,11 @@ namespace histogrammar {
       newvalues.reserve(num());
       for (int i = 0;  i < num();  i++)
         newvalues.push_back(at(i) + that.at(i));
-      return Binning<DATUM, V>(low_, high_, quantity, selection, entries_, newvalues);
+      return Binning<DATUM, V, U, O, N>(low_, high_, quantity, selection, entries_, newvalues, underflow() + that.underflow(), overflow() + that.overflow(), nanflow() + that.nanflow());
     }
 
-    const bool operator==(const Binning<DATUM, V> &that) const {
-      return low() == that.low()  &&  high() == that.high()  &&  entries() == that.entries()  &&  values() == that.values();
+    const bool operator==(const Binning<DATUM, V, U, O, N> &that) const {
+      return low() == that.low()  &&  high() == that.high()  &&  entries() == that.entries()  &&  values() == that.values()  &&  underflow() == that.underflow()  &&  overflow() == that.overflow()  &&  nanflow() == that.nanflow();
     }
 
     void fill(DATUM datum, double weight = 1.0) {
@@ -431,11 +462,11 @@ namespace histogrammar {
 
         entries_ += w;
         if (under(q))
-          nullptr;
+          underflow_.fill(datum, w);
         else if (over(q))
-          nullptr;
+          overflow_.fill(datum, w);
         else if (nan(q))
-          nullptr;
+          nanflow_.fill(datum, w);
         else
           values_[bin(q)].fill(datum, w);
       }
@@ -452,23 +483,29 @@ namespace histogrammar {
         {"entries", entries()},
         {"values:type", values_[0].name()},
         {"values", newvalues},
+        {"underflow:type", underflow_.name()},
+        {"underflow", underflow_.toJsonFragment()},
+        {"overflow:type", overflow_.name()},
+        {"overflow", overflow_.toJsonFragment()},
+        {"nanflow:type", nanflow_.name()},
+        {"nanflow", nanflow_.toJsonFragment()},
       };
     }
   };
 
-  template <typename V> const Binned<V> Bin::ed(double low, double high, double entries, std::vector<V> values) {
-    return Binned<V>(low, high, entries, values);
+  template <typename V, typename U, typename O, typename N> const Binned<V, U, O, N> Bin::ed(double low, double high, double entries, std::vector<V> values, U underflow, O overflow, N nanflow) {
+    return Binned<V, U, O, N>(low, high, entries, values, underflow, overflow, nanflow);
   }
 
-  template <typename DATUM, typename V> const Binning<DATUM, V> Bin::ing(int num, double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, const V value) {
+  template <typename DATUM, typename V, typename U, typename O, typename N> const Binning<DATUM, V, U, O, N> Bin::ing(int num, double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, const V value, const U underflow, const O overflow, const N nanflow) {
     std::vector<V> values;
     values.reserve(num);
     for (int i = 0;  i < num;  i++)
       values.push_back(value.zero());
-    return Binning<DATUM, V>(low, high, quantity, selection, 0.0, values);
+    return Binning<DATUM, V, U, O, N>(low, high, quantity, selection, 0.0, values, underflow.zero(), overflow.zero(), nanflow.zero());
   }
 
-  template <typename V> const Binned<V> Bin::fromJsonFragment(const json &j) {
+  template <typename V, typename U, typename O, typename N> const Binned<V, U, O, N> Bin::fromJsonFragment(const json &j) {
     json jv = j["values"];
     std::vector<V> values;
     values.reserve(jv.size());
@@ -478,12 +515,21 @@ namespace histogrammar {
     for (int i = 0;  i < jv.size();  i++)
       assert(j["values:type"] == values[i].name());
 
-    return Binned<V>(j["low"].get<double>(), j["high"].get<double>(), j["entries"].get<double>(), values);
+    U underflow = U::factory_type::fromJsonFragment(j["underflow"]);
+    assert(j["underflow:type"] == underflow.name());
+
+    U overflow = U::factory_type::fromJsonFragment(j["overflow"]);
+    assert(j["overflow:type"] == overflow.name());
+
+    U nanflow = U::factory_type::fromJsonFragment(j["nanflow"]);
+    assert(j["nanflow:type"] == nanflow.name());
+
+    return Binned<V, U, O, N>(j["low"].get<double>(), j["high"].get<double>(), j["entries"].get<double>(), values, underflow, overflow, nanflow);
   }
 
-  template <typename V> const Binned<V> Bin::fromJson(const json &j) {
+  template <typename V, typename U, typename O, typename N> const Binned<V, U, O, N> Bin::fromJson(const json &j) {
     assert(j["type"].get<std::string>() == Bin::name());
-    return Bin::fromJsonFragment<V>(j["data"]);
+    return Bin::fromJsonFragment<V, U, O, N>(j["data"]);
   }
 }
 

@@ -63,18 +63,18 @@ void test_Binned() {
   const std::vector<Counted> onevalues = {Count::ed(1), Count::ed(2), Count::ed(3)};
   const std::vector<Counted> twovalues = {Count::ed(3), Count::ed(2), Count::ed(1)};
 
-  auto one = Bin::ed(-3, 5, 0.0, onevalues);
-  auto two = Bin::ed(-3, 5, 0.0, twovalues);
+  auto one = Bin::ed(-3, 5, 0.0, onevalues, Count::ed(0), Count::ed(0), Count::ed(0));
+  auto two = Bin::ed(-3, 5, 0.0, twovalues, Count::ed(0), Count::ed(0), Count::ed(0));
   auto three = one + two;
 
   std::cout << "Binned values: " << three.at(0).entries() << " " << three.at(1).entries() << " " << three.at(2).entries() << std::endl;
   auto zero = one.zero();
-  assert(Bin::fromJson<Counted>(one.toJson()) == one);
+  assert((Bin::fromJson<Counted, Counted, Counted, Counted>(one.toJson()) == one));
 }
 
 void test_Binning() {
-  auto one = Bin::ing<std::string, Counting<std::string> >(5, 0.5, 5.5, [](std::string datum){return (double)datum.size();});
-  auto two = Bin::ing<std::string, Counting<std::string> >(5, 0.5, 5.5, [](std::string datum){return (double)datum.size();});
+  auto one = Bin::ing<std::string, Counting<std::string>, Counting<std::string>, Counting<std::string>, Counting<std::string> >(5, 0.5, 5.5, [](std::string datum){return (double)datum.size();});
+  auto two = Bin::ing<std::string, Counting<std::string>, Counting<std::string>, Counting<std::string>, Counting<std::string> >(5, 0.5, 5.5, [](std::string datum){return (double)datum.size();});
 
   one.fill("hello");
   two.fill("hey");
@@ -84,7 +84,7 @@ void test_Binning() {
 
   std::cout << "Binning values: " << three.at(0).entries() << " " << three.at(1).entries() << " " << three.at(2).entries() << " " << three.at(3).entries() << " " << three.at(4).entries() << std::endl;
   auto zero = one.zero();
-  assert(Bin::fromJson<Counted>(Bin::fromJson<Counted>(one.toJson()).toJson()) == Bin::fromJson<Counted>(one.toJson()));
+  assert((Bin::fromJson<Counted, Counted, Counted, Counted>(Bin::fromJson<Counted, Counted, Counted, Counted>(one.toJson()).toJson()) == Bin::fromJson<Counted, Counted, Counted, Counted>(one.toJson())));
 }
 
 int main(int argc, char **argv) {
