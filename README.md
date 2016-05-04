@@ -192,15 +192,15 @@ Last released version was 0.4. The following refers to the git master branch.
 | Maximize               | done  | done    |         |         |         |            |             |
 | Quantile               | done  |         |         |         |         |            |             |
 | Bag                    | done  | done    |         |         |         |            |             |
-| Bin                    | done  | done    | now actually done    |         |         |            |             |
+| Bin                    | done  | done    | done    |         |         |            |             |
 | SparselyBin            | done  | done    |         |         |         |            |             |
 | CentrallyBin           | done  |         |         |         |         |            |             |
 | AdaptivelyBin          | done  |         |         |         |         |            |             |
-| Fraction               | done  | 6       |         |         |         |            |             |
-| Stack                  | done  | 7       |         |         |         |            |             |
-| Partition              | done  | 8       |         |         |         |            |             |
-| Categorize             | done  | 5       |         |         |         |            |             |
+| Fraction               | done  | 2       |         |         |         |            |             |
+| Stack                  | done  | 3       |         |         |         |            |             |
+| Partition              | done  | 4       |         |         |         |            |             |
+| Categorize             | done  | 1       |         |         |         |            |             |
 | Label                  | done  | done    |         |         |         |            |             |
 | UntypedLabel           | done  | done    |         |         |         |            |             |
-| Index                  | done  | 3       |         |         |         |            |             |
-| Branch                 | done  | 4       |         |         |         |            |             |
+| Index                  | done  | done    |         |         |         |            |             |
+| Branch                 | done  | done    |         |         |         |            |             |
