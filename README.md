@@ -196,8 +196,8 @@ Last released version was 0.4. The following refers to the git master branch.
 | SparselyBin            | done  | done    |         |         |         |            |             |
 | CentrallyBin           | done  |         |         |         |         |            |             |
 | AdaptivelyBin          | done  |         |         |         |         |            |             |
-| Fraction               | done  | 2       |         |         |         |            |             |
-| Stack                  | done  | 3       |         |         |         |            |             |
+| Fraction               | done  | done    |         |         |         |            |             |
+| Stack                  | done  | done    |         |         |         |            |             |
 | Partition              | done  | 4       |         |         |         |            |             |
 | Categorize             | done  | done    |         |         |         |            |             |
 | Label                  | done  | done    |         |         |         |            |             |
