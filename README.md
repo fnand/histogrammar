@@ -190,7 +190,7 @@ Last released version was 0.4. The following refers to the git master branch.
 | AbsoluteErr            | done  | done    |         |         |         |            |             |
 | Minimize               | done  | done    |         |         |         |            |             |
 | Maximize               | done  | done    |         |         |         |            |             |
-| Quantile               | done  |         |         |         |         |            |             |
+| Quantile               | new algorithm; must be updated  | done    |         |         |         |            |             |
 | Bag                    | done  | done    |         |         |         |            |             |
 | Bin                    | done  | done    | done    |         |         |            |             |
 | SparselyBin            | done  | done    |         |         |         |            |             |
