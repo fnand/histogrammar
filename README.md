@@ -199,7 +199,7 @@ Last released version was 0.4. The following refers to the git master branch.
 | Fraction               | done  | 2       |         |         |         |            |             |
 | Stack                  | done  | 3       |         |         |         |            |             |
 | Partition              | done  | 4       |         |         |         |            |             |
-| Categorize             | done  | 1       |         |         |         |            |             |
+| Categorize             | done  | done    |         |         |         |            |             |
 | Label                  | done  | done    |         |         |         |            |             |
 | UntypedLabel           | done  | done    |         |         |         |            |             |
 | Index                  | done  | done    |         |         |         |            |             |
