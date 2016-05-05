@@ -198,7 +198,7 @@ Last released version was 0.4. The following refers to the git master branch.
 | AdaptivelyBin          | done  |         |         |         |         |            |             |
 | Fraction               | done  | done    |         |         |         |            |             |
 | Stack                  | done  | done    |         |         |         |            |             |
-| Partition              | done  | 4       |         |         |         |            |             |
+| Partition              | done  | done    |         |         |         |            |             |
 | Categorize             | done  | done    |         |         |         |            |             |
 | Label                  | done  | done    |         |         |         |            |             |
 | UntypedLabel           | done  | done    |         |         |         |            |             |
