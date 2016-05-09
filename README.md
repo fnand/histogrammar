@@ -192,6 +192,8 @@ Last released version was 0.4. The following refers to the git master branch.
 | Maximize               | done  | done    |         |         |         |            |             |
 | Quantile               | new algorithm; must be updated  | done    |         |         |         |            |             |
 | Bag                    | done  | done    |         |         |         |            |             |
+| MinSkim                |       |         |         |         |         |            |             |
+| MaxSkim                |       |         |         |         |         |            |             |
 | Bin                    | done  | done    | done    |         |         |            |             |
 | SparselyBin            | done  | done    |         |         |         |            |             |
 | CentrallyBin           | done  |         |         |         |         |            |             |
