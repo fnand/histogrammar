@@ -196,7 +196,7 @@ Last released version was 0.4. The following refers to the git master branch.
 | MaxSkim                |       |         |         |         |         |            |             |
 | Bin                    | done  | done    | done    |         |         |            |             |
 | SparselyBin            | done  | done    |         |         |         |            |             |
-| CentrallyBin           | done  |         |         |         |         |            |             |
+| CentrallyBin           | done  | done    |         |         |         |            |             |
 | AdaptivelyBin          | done  |         |         |         |         |            |             |
 | Fraction               | done  | done    |         |         |         |            |             |
 | Stack                  | done  | done    |         |         |         |            |             |
