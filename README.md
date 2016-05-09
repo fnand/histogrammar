@@ -162,8 +162,10 @@ Aggregation primitives are also easier to implement than graphics, so Histogramm
 | [AbsoluteErr](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.AbsoluteErr$)     | Accumulate the weighted Mean Absolute Error (MAE) of a quantity whose nominal value is zero. |
 | [Minimize](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Minimize$)        | Find the minimum value of a given quantity. If no data are observed, the result is NaN. |
 | [Maximize](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Maximize$)        | Find the maximum value of a given quantity. If no data are observed, the result is NaN. |
-| [Quantile](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Quantile$)        | Accumulate an adaptively binned histogram to compute approximate quantiles, such as the median. |
+| [Quantile](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Quantile$)        | Estimate a quantile, such as 0.5 for median, (0.25, 0.75) for quartiles, or (0.2, 0.4, 0.6, 0.8) for quintiles. |
 | [Bag](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Bag$)             | Accumulate raw data up to an optional limit, at which point only the total number is preserved. |
+| [MinSkim](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.MinSkim$)     | TODO |
+| [MaxSkim](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.MaxSkim$)     | TODO |
 | [Bin](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Bin$)             | Split a given quantity into equally spaced bins between specified limits and fill only one bin per datum. |
 | [SparselyBin](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.SparselyBin$)     | Split a quantity into equally spaced bins, filling only one bin per datum and creating new bins as necessary. |
 | [CentrallyBin](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.CentrallyBin$)    | Split a quantity into bins defined by a set of bin centers, filling only one datum per bin with no overflows or underflows. |
@@ -179,7 +181,7 @@ Aggregation primitives are also easier to implement than graphics, so Histogramm
 
 ## Status
 
-Last released version was 0.4. The following refers to the git master branch.
+Last released version was 0.5. The following refers to the git master branch.
 
 | Primitive              | Scala | Python  | C++     | SQL     | R       | Javascript | CUDA/OpenCL |
 |:-----------------------|:------|:--------|:--------|:--------|:--------|:-----------|:------------|
