@@ -205,7 +205,7 @@ Last released version was 0.5. The following refers to the git master branch.
 | Stack                  | done  | done    |         |             |         |            |         |
 | Partition              | done  | done    |         |             |         |            |         |
 | Categorize             | done  | done    |         |             |         |            |         |
-| Limit                  | done  |         |         |             |         |            |         |
+| Limit                  | done  | done    |         |             |         |            |         |
 | Label                  | done  | done    |         |             |         |            |         |
 | UntypedLabel           | done  | done    |         |             |         |            |         |
 | Index                  | done  | done    |         |             |         |            |         |
