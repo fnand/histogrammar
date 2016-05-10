@@ -153,11 +153,11 @@ Aggregation primitives are also easier to implement than graphics, so Histogramm
 
 ## Catalog of primitives
 
-*Zeroth kind:* primitives that ignore all data
+**Zeroth kind:** primitives that ignore all data
 
   * [Count](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Count$): Count data, ignoring their content. (Actually a sum of weights.)
 
-*First kind:* primitives that aggregate a given scalar quantity, without sub-aggregators
+**First kind:** primitives that aggregate a given scalar quantity, without sub-aggregators
 
   * [Sum](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Sum$): Accumulate the sum of a given quantity.
   * [Average](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Average$): Accumulate the weighted mean of a given quantity.
@@ -167,7 +167,7 @@ Aggregation primitives are also easier to implement than graphics, so Histogramm
   * [Maximize](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Maximize$): Find the maximum value of a given quantity. If no data are observed, the result is NaN.
   * [Quantile](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Quantile$): Estimate a quantile, such as 0.5 for median, (0.25, 0.75) for quartiles, or (0.2, 0.4, 0.6, 0.8) for quintiles.
 
-*Second kind:* primitives that group by a given scalar quantity, passing data to a sub-aggregator
+**Second kind:** primitives that group by a given scalar quantity, passing data to a sub-aggregator
 
   * [Bin](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Bin$): Split a given quantity into equally spaced bins between specified limits and fill only one bin per datum.
   * [SparselyBin](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.SparselyBin$): Split a quantity into equally spaced bins, filling only one bin per datum and creating new bins as necessary.
@@ -178,7 +178,7 @@ Aggregation primitives are also easier to implement than graphics, so Histogramm
   * [Stack](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Stack$): Accumulate a suite containers, filling all that are above a given cut on a given expression.
   * [Partition](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Partition$): Accumulate a suite containers, filling the one that is between a pair of given cuts on a given expression.
 
-*Third kind:* primitives that act as containers, passing data to all sub-aggregators
+**Third kind:** primitives that act as containers, passing data to all sub-aggregators
 
   * [Limit](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Limit$): Accumulate an aggregator until its number of entries reaches a predefined limit.
   * [Label](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Label$): Accumulate any number of containers of the SAME type and label them with strings. Every one is filled with every input datum.
@@ -186,7 +186,7 @@ Aggregation primitives are also easier to implement than graphics, so Histogramm
   * [Index](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Index$): Accumulate any number of containers of the SAME type anonymously in a list. Every one is filled with every input datum.
   * [Branch](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Branch$): Accumulate containers of DIFFERENT types, indexed by i0 through i9. Every one is filled with every input datum.
 
-*Fourth kind:* primitives that collect sets of raw data (accumulate, rather than aggregate)
+**Fourth kind:** primitives that collect sets of raw data (accumulate, rather than aggregate)
 
   * [Bag](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Bag$): Accumulate raw data up to an optional limit, at which point only the total number is preserved.
   * [Sample](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Sample$): TODO
@@ -201,7 +201,6 @@ Last released version was 0.5. The following refers to the git master branch.
 | Primitive              | Scala (documented) | Python (undocumented)  | C++     | CUDA (Python) | CUDA/OpenCL | R       | Javascript | SQL     |
 |:-----------------------|:-------------------|:-----------------------|:--------|:--------------|:------------|:--------|:-----------|:--------|
 | Count                  | done               | done                   | done    |               |             |         |            |         |
-|:-----------------------|:-------------------|:-----------------------|:--------|:--------------|:------------|:--------|:-----------|:--------|
 | Sum                    | done               | done                   | done    |               |             |         |            |         |
 | Average                | done               | done                   |         |               |             |         |            |         |
 | Deviate                | done               | done                   |         |               |             |         |            |         |
@@ -209,7 +208,6 @@ Last released version was 0.5. The following refers to the git master branch.
 | Minimize               | done               | done                   |         |               |             |         |            |         |
 | Maximize               | done               | done                   |         |               |             |         |            |         |
 | Quantile               | done               | done                   |         |               |             |         |            |         |
-|:-----------------------|:-------------------|:-----------------------|:--------|:--------------|:------------|:--------|:-----------|:--------|
 | Bin                    | done               | done                   | done    |               |             |         |            |         |
 | SparselyBin            | done               | done                   |         |               |             |         |            |         |
 | CentrallyBin           | done               | done                   |         |               |             |         |            |         |
@@ -218,13 +216,11 @@ Last released version was 0.5. The following refers to the git master branch.
 | Fraction               | done               | done                   |         |               |             |         |            |         |
 | Stack                  | done               | done                   |         |               |             |         |            |         |
 | Partition              | done               | done                   |         |               |             |         |            |         |
-|:-----------------------|:-------------------|:-----------------------|:--------|:--------------|:------------|:--------|:-----------|:--------|
 | Limit                  | done               | done                   |         |               |             |         |            |         |
 | Label                  | done               | done                   |         |               |             |         |            |         |
 | UntypedLabel           | done               | done                   |         |               |             |         |            |         |
 | Index                  | done               | done                   |         |               |             |         |            |         |
 | Branch                 | done               | done                   |         |               |             |         |            |         |
-|:-----------------------|:-------------------|:-----------------------|:--------|:--------------|:------------|:--------|:-----------|:--------|
 | Bag                    | done               | done                   |         |               |             |         |            |         |
 | Sample                 |                    |                        |         |               |             |         |            |         |
 | LowSkim                |                    |                        |         |               |             |         |            |         |
