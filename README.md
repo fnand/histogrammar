@@ -193,7 +193,7 @@ Last released version was 0.5. The following refers to the git master branch.
 | Minimize               | done  | done    |         |             |         |            |         |
 | Maximize               | done  | done    |         |             |         |            |         |
 | Quantile               | done  | done    |         |             |         |            |         |
-| Bag                    | done  | must be updated to accept any types and drop limit    |         |             |         |            |         |
+| Bag                    | done  | done    |         |             |         |            |         |
 | Sample                 |       |         |         |             |         |            |         |
 | LowSkim                |       |         |         |             |         |            |         |
 | HighSkim               |       |         |         |             |         |            |         |
