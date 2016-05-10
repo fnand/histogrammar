@@ -193,7 +193,7 @@ Last released version was 0.5. The following refers to the git master branch.
 | Minimize               | done  | done    |         |             |         |            |         |
 | Maximize               | done  | done    |         |             |         |            |         |
 | Quantile               | done  | done    |         |             |         |            |         |
-| Bag                    | done  | done    |         |             |         |            |         |
+| Bag                    | done  | must be updated to accept any types and drop limit    |         |             |         |            |         |
 | Sample                 |       |         |         |             |         |            |         |
 | LowSkim                |       |         |         |             |         |            |         |
 | HighSkim               |       |         |         |             |         |            |         |
@@ -205,6 +205,7 @@ Last released version was 0.5. The following refers to the git master branch.
 | Stack                  | done  | done    |         |             |         |            |         |
 | Partition              | done  | done    |         |             |         |            |         |
 | Categorize             | done  | done    |         |             |         |            |         |
+| Limit                  | done  |         |         |             |         |            |         |
 | Label                  | done  | done    |         |             |         |            |         |
 | UntypedLabel           | done  | done    |         |             |         |            |         |
 | Index                  | done  | done    |         |             |         |            |         |
