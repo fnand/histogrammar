@@ -153,60 +153,79 @@ Aggregation primitives are also easier to implement than graphics, so Histogramm
 
 ## Catalog of primitives
 
-| Primitive       | Description |
-|:----------------|:------------|
-| [Count](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Count$)           | Count data, ignoring their content. (Actually a sum of weights.) |
-| [Sum](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Sum$)             | Accumulate the sum of a given quantity. |
-| [Average](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Average$)         | Accumulate the weighted mean of a given quantity. |
-| [Deviate](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Deviate$)         | Accumulate a weighted variance, mean, and total weight of a given quantity (using an algorithm that is stable for large numbers). |
-| [AbsoluteErr](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.AbsoluteErr$)     | Accumulate the weighted Mean Absolute Error (MAE) of a quantity whose nominal value is zero. |
-| [Minimize](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Minimize$)        | Find the minimum value of a given quantity. If no data are observed, the result is NaN. |
-| [Maximize](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Maximize$)        | Find the maximum value of a given quantity. If no data are observed, the result is NaN. |
-| [Quantile](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Quantile$)        | Estimate a quantile, such as 0.5 for median, (0.25, 0.75) for quartiles, or (0.2, 0.4, 0.6, 0.8) for quintiles. |
-| [Bag](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Bag$)             | Accumulate raw data up to an optional limit, at which point only the total number is preserved. |
-| [LowSkim](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.LowSkim$)     | TODO |
-| [HighSkim](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.HighSkim$)     | TODO |
-| [Bin](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Bin$)             | Split a given quantity into equally spaced bins between specified limits and fill only one bin per datum. |
-| [SparselyBin](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.SparselyBin$)     | Split a quantity into equally spaced bins, filling only one bin per datum and creating new bins as necessary. |
-| [CentrallyBin](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.CentrallyBin$)    | Split a quantity into bins defined by a set of bin centers, filling only one datum per bin with no overflows or underflows. |
-| [AdaptivelyBin](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.AdaptivelyBin$)   | Split a quanity into bins dynamically with a clustering algorithm, filling only one datum per bin with no overflows or underflows. |
-| [Fraction](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Fraction$)        | Accumulate two containers, one with all data (denominator), and one with data that pass a given selection (numerator). |
-| [Stack](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Stack$)           | Accumulate a suite containers, filling all that are above a given cut on a given expression. |
-| [Partition](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Partition$)       | Accumulate a suite containers, filling the one that is between a pair of given cuts on a given expression. |
-| [Categorize](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Categorize$)      | Split a given quantity by its categorical (string-based) value and fill only one category per datum. |
-| [Label](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Label$)           | Accumulate any number of containers of the SAME type and label them with strings. Every one is filled with every input datum. |
-| [UntypedLabel](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.UntypedLabel$)    | Accumulate containers of any type except Count and label them with strings. Every one is filled with every input datum. |
-| [Index](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Index$)           | Accumulate any number of containers of the SAME type anonymously in a list. Every one is filled with every input datum. |
-| [Branch](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Branch$)          | Accumulate containers of DIFFERENT types, indexed by i0 through i9. Every one is filled with every input datum. |
+*Zeroth kind:* primitives that ignore all data
+
+  * [Count](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Count$): Count data, ignoring their content. (Actually a sum of weights.)
+
+*First kind:* primitives that aggregate a given scalar quantity, without sub-aggregators
+
+  * [Sum](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Sum$): Accumulate the sum of a given quantity.
+  * [Average](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Average$): Accumulate the weighted mean of a given quantity.
+  * [Deviate](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Deviate$): Accumulate a weighted variance, mean, and total weight of a given quantity (using an algorithm that is stable for large numbers).
+  * [AbsoluteErr](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.AbsoluteErr$): Accumulate the weighted Mean Absolute Error (MAE) of a quantity whose nominal value is zero.
+  * [Minimize](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Minimize$): Find the minimum value of a given quantity. If no data are observed, the result is NaN.
+  * [Maximize](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Maximize$): Find the maximum value of a given quantity. If no data are observed, the result is NaN.
+  * [Quantile](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Quantile$): Estimate a quantile, such as 0.5 for median, (0.25, 0.75) for quartiles, or (0.2, 0.4, 0.6, 0.8) for quintiles.
+
+*Second kind:* primitives that group by a given scalar quantity, passing data to a sub-aggregator
+
+  * [Bin](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Bin$): Split a given quantity into equally spaced bins between specified limits and fill only one bin per datum.
+  * [SparselyBin](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.SparselyBin$): Split a quantity into equally spaced bins, filling only one bin per datum and creating new bins as necessary.
+  * [CentrallyBin](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.CentrallyBin$): Split a quantity into bins defined by a set of bin centers, filling only one datum per bin with no overflows or underflows.
+  * [AdaptivelyBin](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.AdaptivelyBin$): Split a quanity into bins dynamically with a clustering algorithm, filling only one datum per bin with no overflows or underflows.
+  * [Categorize](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Categorize$): Split a given quantity by its categorical (string-based) value and fill only one category per datum.
+  * [Fraction](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Fraction$): Accumulate two containers, one with all data (denominator), and one with data that pass a given selection (numerator).
+  * [Stack](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Stack$): Accumulate a suite containers, filling all that are above a given cut on a given expression.
+  * [Partition](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Partition$): Accumulate a suite containers, filling the one that is between a pair of given cuts on a given expression.
+
+*Third kind:* primitives that act as containers, passing data to all sub-aggregators
+
+  * [Limit](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Limit$): Accumulate an aggregator until its number of entries reaches a predefined limit.
+  * [Label](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Label$): Accumulate any number of containers of the SAME type and label them with strings. Every one is filled with every input datum.
+  * [UntypedLabel](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.UntypedLabel$): Accumulate containers of any type except Count and label them with strings. Every one is filled with every input datum.
+  * [Index](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Index$): Accumulate any number of containers of the SAME type anonymously in a list. Every one is filled with every input datum.
+  * [Branch](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Branch$): Accumulate containers of DIFFERENT types, indexed by i0 through i9. Every one is filled with every input datum.
+
+*Fourth kind:* primitives that collect sets of raw data (accumulate, rather than aggregate)
+
+  * [Bag](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Bag$): Accumulate raw data up to an optional limit, at which point only the total number is preserved.
+  * [Sample](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Sample$): TODO
+  * [LowSkim](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.LowSkim$): TODO
+  * [HighSkim](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.HighSkim$): TODO
+
 
 ## Status
 
 Last released version was 0.5. The following refers to the git master branch.
 
-| Primitive              | Scala | Python  | C++     | CUDA/OpenCL | R       | Javascript | SQL     |
-|:-----------------------|:------|:--------|:--------|:------------|:--------|:-----------|:--------|
-| Count                  | done  | done    | done    |             |         |            |         |
-| Sum                    | done  | done    | done    |             |         |            |         |
-| Average                | done  | done    |         |             |         |            |         |
-| Deviate                | done  | done    |         |             |         |            |         |
-| AbsoluteErr            | done  | done    |         |             |         |            |         |
-| Minimize               | done  | done    |         |             |         |            |         |
-| Maximize               | done  | done    |         |             |         |            |         |
-| Quantile               | done  | done    |         |             |         |            |         |
-| Bag                    | done  | done    |         |             |         |            |         |
-| Sample                 |       |         |         |             |         |            |         |
-| LowSkim                |       |         |         |             |         |            |         |
-| HighSkim               |       |         |         |             |         |            |         |
-| Bin                    | done  | done    | done    |             |         |            |         |
-| SparselyBin            | done  | done    |         |             |         |            |         |
-| CentrallyBin           | done  | done    |         |             |         |            |         |
-| AdaptivelyBin          | done  | done    |         |             |         |            |         |
-| Fraction               | done  | done    |         |             |         |            |         |
-| Stack                  | done  | done    |         |             |         |            |         |
-| Partition              | done  | done    |         |             |         |            |         |
-| Categorize             | done  | done    |         |             |         |            |         |
-| Limit                  | done  | done    |         |             |         |            |         |
-| Label                  | done  | done    |         |             |         |            |         |
-| UntypedLabel           | done  | done    |         |             |         |            |         |
-| Index                  | done  | done    |         |             |         |            |         |
-| Branch                 | done  | done    |         |             |         |            |         |
+| Primitive              | Scala (documented) | Python (undocumented)  | C++     | CUDA (Python) | CUDA/OpenCL | R       | Javascript | SQL     |
+|:-----------------------|:-------------------|:-----------------------|:--------|:--------------|:------------|:--------|:-----------|:--------|
+| Count                  | done               | done                   | done    |               |             |         |            |         |
+|:-----------------------|:-------------------|:-----------------------|:--------|:--------------|:------------|:--------|:-----------|:--------|
+| Sum                    | done               | done                   | done    |               |             |         |            |         |
+| Average                | done               | done                   |         |               |             |         |            |         |
+| Deviate                | done               | done                   |         |               |             |         |            |         |
+| AbsoluteErr            | done               | done                   |         |               |             |         |            |         |
+| Minimize               | done               | done                   |         |               |             |         |            |         |
+| Maximize               | done               | done                   |         |               |             |         |            |         |
+| Quantile               | done               | done                   |         |               |             |         |            |         |
+|:-----------------------|:-------------------|:-----------------------|:--------|:--------------|:------------|:--------|:-----------|:--------|
+| Bin                    | done               | done                   | done    |               |             |         |            |         |
+| SparselyBin            | done               | done                   |         |               |             |         |            |         |
+| CentrallyBin           | done               | done                   |         |               |             |         |            |         |
+| AdaptivelyBin          | done               | done                   |         |               |             |         |            |         |
+| Categorize             | done               | done                   |         |               |             |         |            |         |
+| Fraction               | done               | done                   |         |               |             |         |            |         |
+| Stack                  | done               | done                   |         |               |             |         |            |         |
+| Partition              | done               | done                   |         |               |             |         |            |         |
+|:-----------------------|:-------------------|:-----------------------|:--------|:--------------|:------------|:--------|:-----------|:--------|
+| Limit                  | done               | done                   |         |               |             |         |            |         |
+| Label                  | done               | done                   |         |               |             |         |            |         |
+| UntypedLabel           | done               | done                   |         |               |             |         |            |         |
+| Index                  | done               | done                   |         |               |             |         |            |         |
+| Branch                 | done               | done                   |         |               |             |         |            |         |
+|:-----------------------|:-------------------|:-----------------------|:--------|:--------------|:------------|:--------|:-----------|:--------|
+| Bag                    | done               | done                   |         |               |             |         |            |         |
+| Sample                 |                    |                        |         |               |             |         |            |         |
+| LowSkim                |                    |                        |         |               |             |         |            |         |
+| HighSkim               |                    |                        |         |               |             |         |            |         |
