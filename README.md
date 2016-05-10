@@ -188,7 +188,7 @@ Aggregation primitives are also easier to implement than graphics, so Histogramm
 
 **Fourth kind:** primitives that collect sets of raw data (accumulate, rather than aggregate)
 
-  * [Bag](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Bag$): Accumulate raw data up to an optional limit, at which point only the total number is preserved.
+  * [Bag](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Bag$): Accumulate raw numbers, vectors of numbers, or strings, merging identical values.
   * [Sample](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Sample$): TODO
   * [LowSkim](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.LowSkim$): TODO
   * [HighSkim](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.HighSkim$): TODO
