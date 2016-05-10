@@ -164,8 +164,8 @@ Aggregation primitives are also easier to implement than graphics, so Histogramm
 | [Maximize](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Maximize$)        | Find the maximum value of a given quantity. If no data are observed, the result is NaN. |
 | [Quantile](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Quantile$)        | Estimate a quantile, such as 0.5 for median, (0.25, 0.75) for quartiles, or (0.2, 0.4, 0.6, 0.8) for quintiles. |
 | [Bag](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Bag$)             | Accumulate raw data up to an optional limit, at which point only the total number is preserved. |
-| [MinSkim](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.MinSkim$)     | TODO |
-| [MaxSkim](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.MaxSkim$)     | TODO |
+| [LowSkim](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.LowSkim$)     | TODO |
+| [HighSkim](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.HighSkim$)     | TODO |
 | [Bin](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.Bin$)             | Split a given quantity into equally spaced bins between specified limits and fill only one bin per datum. |
 | [SparselyBin](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.SparselyBin$)     | Split a quantity into equally spaced bins, filling only one bin per datum and creating new bins as necessary. |
 | [CentrallyBin](http://diana-hep.org/histogrammar/scala/0.1/index.html#org.dianahep.histogrammar.CentrallyBin$)    | Split a quantity into bins defined by a set of bin centers, filling only one datum per bin with no overflows or underflows. |
@@ -194,8 +194,9 @@ Last released version was 0.5. The following refers to the git master branch.
 | Maximize               | done  | done    |         |             |         |            |         |
 | Quantile               | done  | done    |         |             |         |            |         |
 | Bag                    | done  | done    |         |             |         |            |         |
-| MinSkim                |       |         |         |             |         |            |         |
-| MaxSkim                |       |         |         |             |         |            |         |
+| Sample                 |       |         |         |             |         |            |         |
+| LowSkim                |       |         |         |             |         |            |         |
+| HighSkim               |       |         |         |             |         |            |         |
 | Bin                    | done  | done    | done    |             |         |            |         |
 | SparselyBin            | done  | done    |         |             |         |            |         |
 | CentrallyBin           | done  | done    |         |             |         |            |         |
