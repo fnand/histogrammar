@@ -189,7 +189,7 @@ Aggregation primitives are also easier to implement than graphics, so Histogramm
 **Fourth kind:** primitives that collect sets of raw data.
 
   * [Bag](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Bag$): Accumulate raw numbers, vectors of numbers, or strings, merging identical values.
-  * [Sample](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Sample$): TODO
+  * [Sample](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Sample$): Accumulate raw numbers, vectors of numbers, or strings that are an unbiased sample of the observed distribution.
   * [LowSkim](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.LowSkim$): TODO
   * [HighSkim](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.HighSkim$): TODO
 
@@ -198,30 +198,30 @@ Aggregation primitives are also easier to implement than graphics, so Histogramm
 
 Last released version was 0.5. The following refers to the git master branch.
 
-| Primitive              | Scala (documented) | Python (undocumented)  | C++     | CUDA (Python) | CUDA/OpenCL | R       | Javascript | SQL     |
-|:-----------------------|:-------------------|:-----------------------|:--------|:--------------|:------------|:--------|:-----------|:--------|
-| Count                  | done               | done                   | done    |               |             |         |            |         |
-| Sum                    | done               | done                   | done    |               |             |         |            |         |
-| Average                | done               | done                   |         |               |             |         |            |         |
-| Deviate                | done               | done                   |         |               |             |         |            |         |
-| AbsoluteErr            | done               | done                   |         |               |             |         |            |         |
-| Minimize               | done               | done                   |         |               |             |         |            |         |
-| Maximize               | done               | done                   |         |               |             |         |            |         |
-| Quantile               | done               | done                   |         |               |             |         |            |         |
-| Bin                    | done               | done                   | done    |               |             |         |            |         |
-| SparselyBin            | done               | done                   |         |               |             |         |            |         |
-| CentrallyBin           | done               | done                   |         |               |             |         |            |         |
-| AdaptivelyBin          | done               | done                   |         |               |             |         |            |         |
-| Categorize             | done               | done                   |         |               |             |         |            |         |
-| Fraction               | done               | done                   |         |               |             |         |            |         |
-| Stack                  | done               | done                   |         |               |             |         |            |         |
-| Partition              | done               | done                   |         |               |             |         |            |         |
-| Limit                  | done               | done                   |         |               |             |         |            |         |
-| Label                  | done               | done                   |         |               |             |         |            |         |
-| UntypedLabel           | done               | done                   |         |               |             |         |            |         |
-| Index                  | done               | done                   |         |               |             |         |            |         |
-| Branch                 | done               | done                   |         |               |             |         |            |         |
-| Bag                    | done               | done                   |         |               |             |         |            |         |
-| Sample                 |                    |                        |         |               |             |         |            |         |
-| LowSkim                |                    |                        |         |               |             |         |            |         |
-| HighSkim               |                    |                        |         |               |             |         |            |         |
+| Primitive              | Scala | Python (undocumented)  | C++     | CUDA (Python) | CUDA/OpenCL | R       | Javascript | SQL     |
+|:-----------------------|:------|:-----------------------|:--------|:--------------|:------------|:--------|:-----------|:--------|
+| Count                  | done  | done                   | done    |               |             |         |            |         |
+| Sum                    | done  | done                   | done    |               |             |         |            |         |
+| Average                | done  | done                   |         |               |             |         |            |         |
+| Deviate                | done  | done                   |         |               |             |         |            |         |
+| AbsoluteErr            | done  | done                   |         |               |             |         |            |         |
+| Minimize               | done  | done                   |         |               |             |         |            |         |
+| Maximize               | done  | done                   |         |               |             |         |            |         |
+| Quantile               | done  | done                   |         |               |             |         |            |         |
+| Bin                    | done  | done                   | done    |               |             |         |            |         |
+| SparselyBin            | done  | done                   |         |               |             |         |            |         |
+| CentrallyBin           | done  | done                   |         |               |             |         |            |         |
+| AdaptivelyBin          | done  | done                   |         |               |             |         |            |         |
+| Categorize             | done  | done                   |         |               |             |         |            |         |
+| Fraction               | done  | done                   |         |               |             |         |            |         |
+| Stack                  | done  | done                   |         |               |             |         |            |         |
+| Partition              | done  | done                   |         |               |             |         |            |         |
+| Limit                  | done  | done                   |         |               |             |         |            |         |
+| Label                  | done  | done                   |         |               |             |         |            |         |
+| UntypedLabel           | done  | done                   |         |               |             |         |            |         |
+| Index                  | done  | done                   |         |               |             |         |            |         |
+| Branch                 | done  | done                   |         |               |             |         |            |         |
+| Bag                    | done  | done                   |         |               |             |         |            |         |
+| Sample                 | done  |                        |         |               |             |         |            |         |
+| LowSkim                |       |                        |         |               |             |         |            |         |
+| HighSkim               |       |                        |         |               |             |         |            |         |
