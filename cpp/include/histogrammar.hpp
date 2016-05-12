@@ -21,7 +21,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-
+#include <numeric>
 #include "json.hpp"
 
 using json = nlohmann::json;
