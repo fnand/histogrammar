@@ -222,3 +222,14 @@ Last released version was 0.5. The following refers to the git master branch.
 | Branch                 | done  | done                   |         |               |             |         |            |         |
 | Bag                    | done  | done                   |         |               |             |         |            |         |
 | Sample                 | done  |                        |         |               |             |         |            |         |
+
+Needs to be synchronized: Scala has
+
+   * selection functions removed from all primitives except Cut and Fraction: express cuts by composing;
+   * the Histogram convenience function is now Cut(Bin(Count())), which changes the Histogram methods;
+   * user functions have (implicit) methods to add names and cache functionality;
+   * function name is propagated through JSON if it exists;
+
+and Python needs to get these features. Same for C++. Cut will need to be the third primitive implemented.
+
+Think about a rollback feature: if an exception occurs during filling, the state should rollback to what it had been just before the fill attempt. Is this too hard for all languages (C++)?
