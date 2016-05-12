@@ -229,7 +229,6 @@ Needs to be synchronized: Scala has
    * the Histogram convenience function is now Cut(Bin(Count())), which changes the Histogram methods;
    * user functions have (implicit) methods to add names and cache functionality;
    * function name is propagated through JSON if it exists;
+   * fill functions "roll back": if an exception occurs in the user's function, the state is unchanged (through careful order of operations, not try-catch).
 
-and Python needs to get these features. Same for C++. Cut will need to be the third primitive implemented.
-
-Think about a rollback feature: if an exception occurs during filling, the state should rollback to what it had been just before the fill attempt. Is this too hard for all languages (C++)?
+and Python needs to get these features. Same for C++. Cut will need to be the third primitive implemented in C++.
