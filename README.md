@@ -214,14 +214,14 @@ Last released version was 0.5. The following refers to the git master branch.
 | Fraction               | done  | done                   |         |               |             |         |            |         |
 | Stack                  | done  | done                   |         |               |             |         |            |         |
 | Partition              | done  | done                   |         |               |             |         |            |         |
-| Cut                    | done  |                        |         |               |             |         |            |         |
+| Cut                    | done  | done                   |         |               |             |         |            |         |
 | Limit                  | done  | done                   |         |               |             |         |            |         |
 | Label                  | done  | done                   |         |               |             |         |            |         |
 | UntypedLabel           | done  | done                   |         |               |             |         |            |         |
 | Index                  | done  | done                   |         |               |             |         |            |         |
 | Branch                 | done  | done                   |         |               |             |         |            |         |
 | Bag                    | done  | done                   |         |               |             |         |            |         |
-| Sample                 | done  |                        |         |               |             |         |            |         |
+| Sample                 | done  | done                   |         |               |             |         |            |         |
 
 Needs to be synchronized: Scala has
 
