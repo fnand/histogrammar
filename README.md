@@ -222,5 +222,3 @@ Last released version was 0.5. The following refers to the git master branch.
 | Branch                 | done  | done                   |         |               |             |         |            |         |
 | Bag                    | done  | done                   |         |               |             |         |            |         |
 | Sample                 | done  | done                   |         |               |             |         |            |         |
-
-Now that names have been added to Python functions but not the .ed signature, they need to be removed from the .ed signature in Scala.
