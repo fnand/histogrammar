@@ -223,8 +223,4 @@ Last released version was 0.5. The following refers to the git master branch.
 | Bag                    | done  | done                   |         |               |             |         |            |         |
 | Sample                 | done  | done                   |         |               |             |         |            |         |
 
-Needs to be synchronized: Scala has
-
-   * function name is propagated through JSON if it exists;
-
-and Python needs to get these features. Same for C++. Cut will need to be the third primitive implemented in C++.
+Now that names have been added to Python functions but not the .ed signature, they need to be removed from the .ed signature in Scala.
