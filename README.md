@@ -225,7 +225,6 @@ Last released version was 0.5. The following refers to the git master branch.
 
 Needs to be synchronized: Scala has
 
-   * user functions have (implicit) methods to add names and cache functionality;
    * function name is propagated through JSON if it exists;
 
 and Python needs to get these features. Same for C++. Cut will need to be the third primitive implemented in C++.
