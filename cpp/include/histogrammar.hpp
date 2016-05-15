@@ -86,7 +86,10 @@ namespace histogrammar {
     friend class Count;
   private:
     double entries_;
-    Counted(double entries) : entries_(entries) { }
+    Counted(double entries) : entries_(entries) {
+      if (entries < 0.0)
+        throw std::invalid_argument(std::string("entries (") + std::to_string(entries) + std::string(") cannot be negative"));
+    }
 
   public:
     using factory_type = Count;
@@ -167,7 +170,10 @@ namespace histogrammar {
   private:
     double entries_;
     double sum_;
-    Summed(double entries, double sum) : entries_(entries), sum_(sum) { }
+    Summed(double entries, double sum) : entries_(entries), sum_(sum) {
+      if (entries < 0.0)
+        throw std::invalid_argument(std::string("entries (") + std::to_string(entries) + std::string(") cannot be negative"));
+    }
 
   public:
     using factory_type = Sum;
@@ -531,6 +537,114 @@ namespace histogrammar {
     assert(j["type"].get<std::string>() == Bin::name());
     return Bin::fromJsonFragment<V, U, O, N>(j["data"]);
   }
+
+  //////////////////////////////////////////////////////////////// Cut/Cutted/Cutting
+
+  template <typename V> class Cutted;
+  template <typename DATUM, typename V> class Cutting;
+
+  class Cut : public Factory {
+  public:
+    template <typename V> using ed_type = Cutted<V>;
+    template <typename DATUM, typename V> using ing_type = Cutting<DATUM, V>;
+    static const std::string name() { return "Cut"; }
+
+    template <typename V> static const ed_type<V> ed(double entries, V value);
+    template <typename DATUM, typename V> static const ing_type<DATUM, V> ing(std::function<double(DATUM)> selection, V value);
+
+    template <typename V> static const ed_type<V> fromJsonFragment(const json &j);
+    template <typename V> static const ed_type<V> fromJson(const json &j);
+  };
+
+  template <typename V> class Cutted : public Container<Cutted<V> > {
+    friend class Cut;
+  private:
+    double entries_;
+    V value_;
+    Cutted(double entries, V value) : entries_(entries), value_(value) {
+      static_assert(std::is_base_of<Container<V>, V>::value, "Cutted values type must be a Container");
+      if (entries < 0.0)
+        throw std::invalid_argument(std::string("entries (") + std::to_string(entries) + std::string(") cannot be negative"));
+    }
+
+  public:
+    using factory_type = Cut;
+    Cutted(const Cutted &that) : entries_(that.entries()), value_(that.value()) { }
+    const std::string name() const { return factory_type::name(); }
+
+    double entries() const { return entries_; }
+    V value() const { return value_; }
+
+    const Cutted<V> zero() const { return Cutted<V>(0.0, value.zero()); }
+    const Cutted<V> operator+(const Cutted<V> &that) const { return Cutted<V>(entries() + that.entries(), value() + that.value()); }
+    const bool operator==(const Cutted<V> &that) const { return entries() == that.entries()  &&  value() == that.value(); }
+
+    const json toJsonFragment() const {
+      return {
+        {"entries", entries()},
+        {"type", value.name()},
+        {"data", value().toJsonFragment()},
+      };
+    }
+  };
+
+  template <typename DATUM, typename V> class Cutting : public Container<Cutting<DATUM, V> >, public Aggregation<DATUM> {
+    friend class Cut;
+  private:
+    double entries_;
+    V value_;
+    Cutting(double entries, std::function<double(DATUM)> selection, V value) : entries_(entries), selection(selection), value_(value) {
+      static_assert(std::is_base_of<Container<V>, V>::value, "Cutting values type must be a Container");
+      static_assert(std::is_base_of<Aggregation<DATUM>, V>::value, "Cutting values type must have Aggregation for this data type");
+    }
+  public:
+    using factory_type = Cut;
+    Cutting(const Cutting &that) : entries_(that.entries()), selection(selection), value_(that.value()) { }
+    const std::function<double(DATUM)> selection;
+    const std::string name() const { return factory_type::name(); }
+
+    double entries() const { return entries_; }
+    double value() const { return value_; }
+
+    const Cutting<DATUM, V> zero() const { return Cutting<DATUM, V>(0.0, selection, value().zero()); }
+    const Cutting<DATUM, V> operator+(const Cutting<DATUM, V> &that) const { return Cutting<DATUM, V>(entries() + that.entries(), selection, value() + that.value()); }
+    const bool operator==(const Cutting<DATUM, V> &that) const { return entries() == that.entries()  &&  value() == that.value(); }
+
+    void fill(DATUM datum, double weight = 1.0) {
+      double w = weight * selection(datum);
+      if (w > 0.0)
+        value().fill(datum, w);
+
+      // no possibility of exception from here on out (for rollback)
+      entries_ += weight;
+    }
+
+    const json toJsonFragment() const {
+      return {
+        {"entries", entries()},
+        {"type", value().name()},
+        {"data", value().toJsonFragment()},
+      };
+    }
+  };
+
+  template <typename V> const Cutted<V> Cut::ed(double entries, V value) { return Cutted<V>(entries, value); }
+
+  template <typename DATUM, typename V> const Cutting<DATUM, V> Cut::ing(std::function<double(DATUM)> selection, V value) {
+    return Cutting<DATUM, V>(0.0, selection, value);
+  }
+
+  template <typename V> const Cutted<V> Cut::fromJsonFragment(const json &j) {
+    V value = V::factory_type::fromJsonFragment(j["data"]);
+    assert(j["type"] == value);
+    return Cutted<V>(j["entries"].get<double>(), value);
+  }
+
+  template <typename V> const Cutted<V> Cut::fromJson(const json &j) {
+    assert(j["type"].get<std::string>() == Cut::name());
+    return Cut::fromJsonFragment<V>(j["data"]);
+  }
+
 }
 
 #endif // HISTOGRAMMAR_HPP
