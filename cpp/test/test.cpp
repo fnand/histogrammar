@@ -38,6 +38,22 @@ void test_Counting() {
   assert(Count::fromJson(Count::fromJson(one.toJson()).toJson()) == Count::fromJson(one.toJson()));
 }
 
+void test_CuttingCounting() {
+  auto one = Cut::ing<double, Counting<double> >([](double x){return x > 3.14;}, Count::ing<double>());
+  auto two = Cut::ing<double, Counting<double> >([](double x){return x > 3.14;}, Count::ing<double>());
+  one.fill(3.0);
+  one.fill(4.0);
+  two.fill(3.0);
+  two.fill(4.0);
+  two.fill(5.0);
+  std::cout << "CuttingCounting: " << one.value.entries << " / " << one.entries << " = " << one.fractionPassing() << std::endl;
+  std::cout << "                 " << two.value.entries << " / " << two.entries << " = " << two.fractionPassing() << std::endl;
+  auto three = one + two;
+  std::cout << "                 " << three.value.entries << " / " << three.entries << " = " << three.fractionPassing() << std::endl;
+  auto zero = one.zero();
+  assert(Cut::fromJson<Counted>(Cut::fromJson<Counted>(one.toJson()).toJson()) == Cut::fromJson<Counted>(one.toJson()));
+}
+
 void test_Summed() {
   auto one = Sum::ed(1, 1);
   auto two = Sum::ed(2, 2);
@@ -92,6 +108,7 @@ int main(int argc, char **argv) {
 
   test_Counted();
   test_Counting();
+  test_CuttingCounting();
 
   test_Summed();
   test_Summing();

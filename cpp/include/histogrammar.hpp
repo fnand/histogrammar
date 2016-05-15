@@ -546,6 +546,8 @@ namespace histogrammar {
     const double entries;
     const V value;
 
+    double fractionPassing() { return value.entries / entries; }
+
     const Cutted<V> zero() const { return Cutted<V>(0.0, value.zero()); }
     const Cutted<V> operator+(const Cutted<V> &that) const { return Cutted<V>(entries + that.entries, value + that.value); }
     const bool operator==(const Cutted<V> &that) const { return entries == that.entries  &&  value == that.value; }
@@ -568,12 +570,14 @@ namespace histogrammar {
     }
   public:
     using factory_type = Cut;
-    Cutting(const Cutting &that) : entries(that.entries()), selection(selection), value(that.value()) { }
+    Cutting(const Cutting &that) : entries(that.entries), selection(selection), value(that.value) { }
     const std::string name() const { return factory_type::name(); }
 
     double entries;
     const std::function<double(DATUM)> selection;
-    const V value;
+    V value;
+
+    double fractionPassing() { return value.entries / entries; }
 
     const Cutting<DATUM, V> zero() const { return Cutting<DATUM, V>(0.0, selection, value.zero()); }
     const Cutting<DATUM, V> operator+(const Cutting<DATUM, V> &that) const { return Cutting<DATUM, V>(entries + that.entries, selection, value + that.value); }
@@ -605,7 +609,7 @@ namespace histogrammar {
 
   template <typename V> const Cutted<V> Cut::fromJsonFragment(const json &j) {
     V value = V::factory_type::fromJsonFragment(j["data"]);
-    assert(j["type"] == value);
+    assert(j["type"].get<std::string>() == value.name());
     return Cutted<V>(j["entries"].get<double>(), value);
   }
 
