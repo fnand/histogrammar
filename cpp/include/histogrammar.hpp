@@ -123,6 +123,7 @@ namespace histogrammar {
     const bool operator==(const Counting &that) const { return entries == that.entries; }
 
     void fill(DATUM datum, double weight = 1.0) {
+      // no possibility of exception from here on out (for rollback)
       entries += weight;
     }
 
@@ -156,7 +157,7 @@ namespace histogrammar {
     static const std::string name() { return "Sum"; }
 
     static const ed_type ed(double entries, double sum);
-    template <typename DATUM> static const ing_type<DATUM> ing(std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection = makeUnweighted<DATUM>());
+    template <typename DATUM> static const ing_type<DATUM> ing(std::function<double(DATUM)> quantity);
 
     static const ed_type fromJsonFragment(const json &j);
     static const ed_type fromJson(const json &j);
@@ -193,28 +194,28 @@ namespace histogrammar {
   template <typename DATUM> class Summing : public Container<Summing<DATUM> >, public Aggregation<DATUM> {
     friend class Sum;
   private:
-    Summing(std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, double entries, double sum) : quantity(quantity), selection(selection), entries(entries), sum(sum) { }
+    Summing(std::function<double(DATUM)> quantity, double entries, double sum) : quantity(quantity), entries(entries), sum(sum) { }
 
   public:
     using factory_type = Sum;
-    Summing(const Summing &that) : quantity(that.quantity), selection(that.selection), entries(that.entries), sum(that.sum) { }
+    Summing(const Summing &that) : quantity(that.quantity), entries(that.entries), sum(that.sum) { }
     const std::string name() const { return factory_type::name(); }
 
     const std::function<double(DATUM)> quantity;
-    const std::function<double(DATUM)> selection;
     double entries;
     double sum;
 
-    const Summing<DATUM> zero() const { return Summing<DATUM>(quantity, selection, 0.0, 0.0); }
-    const Summing<DATUM> operator+(const Summing<DATUM> &that) const { return Summing<DATUM>(quantity, selection, entries + that.entries, sum + that.sum); }
+    const Summing<DATUM> zero() const { return Summing<DATUM>(quantity, 0.0, 0.0); }
+    const Summing<DATUM> operator+(const Summing<DATUM> &that) const { return Summing<DATUM>(quantity, entries + that.entries, sum + that.sum); }
     const bool operator==(const Summing &that) const { return entries == that.entries  &&  sum == that.sum; }
 
     void fill(DATUM datum, double weight = 1.0) {
-      double w = weight * selection(datum);
-      if (w > 0.0) {
+      if (weight > 0.0) {
         double q = quantity(datum);
-        entries += w;
-        sum += q * w;
+
+        // no possibility of exception from here on out (for rollback)
+        entries += weight;
+        sum += q * weight;
       }
     }
 
@@ -228,7 +229,7 @@ namespace histogrammar {
 
   const Summed Sum::ed(double entries, double sum) { return Summed(entries, sum); }
 
-  template <typename DATUM> const Summing<DATUM> Sum::ing(std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection) { return Summing<DATUM>(quantity, selection, 0.0, 0.0); }
+  template <typename DATUM> const Summing<DATUM> Sum::ing(std::function<double(DATUM)> quantity) { return Summing<DATUM>(quantity, 0.0, 0.0); }
 
   const Summed Sum::fromJsonFragment(const json &j) {
     return Summed(j["entries"].get<double>(), j["sum"].get<double>());
@@ -252,7 +253,7 @@ namespace histogrammar {
     static const std::string name() { return "Bin"; }
 
     template <typename V, typename U, typename O, typename N> static const ed_type<V, U, O, N> ed(double low, double high, double entries, std::vector<V> values, U underflow, O overflow, N nanflow);
-    template <typename DATUM, typename V, typename U, typename O, typename N> static const ing_type<DATUM, V, U, O, N> ing(int num, double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection = makeUnweighted<DATUM>(), V value = Count::ing<DATUM>(), U underflow = Count::ing<DATUM>(), O overflow = Count::ing<DATUM>(), N nanflow = Count::ing<DATUM>());
+    template <typename DATUM, typename V, typename U, typename O, typename N> static const ing_type<DATUM, V, U, O, N> ing(int num, double low, double high, std::function<double(DATUM)> quantity, V value = Count::ing<DATUM>(), U underflow = Count::ing<DATUM>(), O overflow = Count::ing<DATUM>(), N nanflow = Count::ing<DATUM>());
 
     template <typename V, typename U, typename O, typename N> static const ed_type<V, U, O, N> fromJsonFragment(const json &j);
     template <typename V, typename U, typename O, typename N> static const ed_type<V, U, O, N> fromJson(const json &j);
@@ -372,7 +373,7 @@ namespace histogrammar {
   template <typename DATUM, typename V, typename U, typename O, typename N> class Binning : public Container<Binning<DATUM, V, U, O, N> >, public Aggregation<DATUM>, public BinMethods {
     friend class Bin;
   private:
-    Binning(double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, double entries, std::vector<V> values, U underflow, O overflow, N nanflow) : BinMethods(values.size(), low, high), quantity(quantity), selection(selection), entries(entries), values(values), underflow(underflow), overflow(overflow), nanflow(nanflow) {
+    Binning(double low, double high, std::function<double(DATUM)> quantity, double entries, std::vector<V> values, U underflow, O overflow, N nanflow) : BinMethods(values.size(), low, high), quantity(quantity), entries(entries), values(values), underflow(underflow), overflow(overflow), nanflow(nanflow) {
 
       static_assert(std::is_base_of<Container<V>, V>::value, "Binning values type must be a Container");
       static_assert(std::is_base_of<Aggregation<DATUM>, V>::value, "Binning values type must have Aggregation for this data type");
@@ -393,11 +394,10 @@ namespace histogrammar {
 
   public:
     using factory_type = Bin;
-    Binning(const Binning &that) : BinMethods(that.values.size(), that.low, that.high), quantity(quantity), selection(selection), entries(that.entries), values(that.values), underflow(that.underflow), overflow(that.overflow), nanflow(that.nanflow) { }
+    Binning(const Binning &that) : BinMethods(that.values.size(), that.low, that.high), quantity(quantity), entries(that.entries), values(that.values), underflow(that.underflow), overflow(that.overflow), nanflow(that.nanflow) { }
     const std::string name() const { return factory_type::name(); }
 
     const std::function<double(DATUM)> quantity;
-    const std::function<double(DATUM)> selection;
     double entries;
     std::vector<V> values;
     U underflow;
@@ -411,7 +411,7 @@ namespace histogrammar {
       newvalues.reserve(num);
       for (int i = 0;  i < num;  i++)
         newvalues.push_back(at(i).zero());
-      return Binning<DATUM, V, U, O, N>(low, high, quantity, selection, entries, newvalues, underflow, overflow, nanflow);
+      return Binning<DATUM, V, U, O, N>(low, high, quantity, entries, newvalues, underflow, overflow, nanflow);
     }
 
     const Binning<DATUM, V, U, O, N> operator+(const Binning<DATUM, V, U, O, N> &that) const {
@@ -426,7 +426,7 @@ namespace histogrammar {
       newvalues.reserve(num);
       for (int i = 0;  i < num;  i++)
         newvalues.push_back(at(i) + that.at(i));
-      return Binning<DATUM, V, U, O, N>(low, high, quantity, selection, entries, newvalues, underflow + that.underflow, overflow + that.overflow, nanflow + that.nanflow);
+      return Binning<DATUM, V, U, O, N>(low, high, quantity, entries, newvalues, underflow + that.underflow, overflow + that.overflow, nanflow + that.nanflow);
     }
 
     const bool operator==(const Binning<DATUM, V, U, O, N> &that) const {
@@ -434,19 +434,20 @@ namespace histogrammar {
     }
 
     void fill(DATUM datum, double weight = 1.0) {
-      double w = weight * selection(datum);
-      if (w > 0.0) {
+      if (weight > 0.0) {
         double q = quantity(datum);
 
-        entries += w;
         if (under(q))
-          underflow.fill(datum, w);
+          underflow.fill(datum, weight);
         else if (over(q))
-          overflow.fill(datum, w);
+          overflow.fill(datum, weight);
         else if (nan(q))
-          nanflow.fill(datum, w);
+          nanflow.fill(datum, weight);
         else
-          values[bin(q)].fill(datum, w);
+          values[bin(q)].fill(datum, weight);
+
+        // no possibility of exception from here on out (for rollback)
+        entries += weight;
       }
     }
 
@@ -475,12 +476,12 @@ namespace histogrammar {
     return Binned<V, U, O, N>(low, high, entries, values, underflow, overflow, nanflow);
   }
 
-  template <typename DATUM, typename V, typename U, typename O, typename N> const Binning<DATUM, V, U, O, N> Bin::ing(int num, double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, const V value, const U underflow, const O overflow, const N nanflow) {
+  template <typename DATUM, typename V, typename U, typename O, typename N> const Binning<DATUM, V, U, O, N> Bin::ing(int num, double low, double high, std::function<double(DATUM)> quantity, const V value, const U underflow, const O overflow, const N nanflow) {
     std::vector<V> values;
     values.reserve(num);
     for (int i = 0;  i < num;  i++)
       values.push_back(value.zero());
-    return Binning<DATUM, V, U, O, N>(low, high, quantity, selection, 0.0, values, underflow.zero(), overflow.zero(), nanflow.zero());
+    return Binning<DATUM, V, U, O, N>(low, high, quantity, 0.0, values, underflow.zero(), overflow.zero(), nanflow.zero());
   }
 
   template <typename V, typename U, typename O, typename N> const Binned<V, U, O, N> Bin::fromJsonFragment(const json &j) {
