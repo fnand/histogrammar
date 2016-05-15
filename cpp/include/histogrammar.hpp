@@ -559,9 +559,7 @@ namespace histogrammar {
   template <typename V> class Cutted : public Container<Cutted<V> > {
     friend class Cut;
   private:
-    double entries_;
-    V value_;
-    Cutted(double entries, V value) : entries_(entries), value_(value) {
+    Cutted(double entries, V value) : entries(entries), value(value) {
       static_assert(std::is_base_of<Container<V>, V>::value, "Cutted values type must be a Container");
       if (entries < 0.0)
         throw std::invalid_argument(std::string("entries (") + std::to_string(entries) + std::string(") cannot be negative"));
@@ -569,21 +567,20 @@ namespace histogrammar {
 
   public:
     using factory_type = Cut;
-    Cutted(const Cutted &that) : entries_(that.entries()), value_(that.value()) { }
+    Cutted(const Cutted &that) : entries_(that.entries), value_(that.value) { }
+    const double entries;
+    const V value;
     const std::string name() const { return factory_type::name(); }
 
-    double entries() const { return entries_; }
-    V value() const { return value_; }
-
     const Cutted<V> zero() const { return Cutted<V>(0.0, value.zero()); }
-    const Cutted<V> operator+(const Cutted<V> &that) const { return Cutted<V>(entries() + that.entries(), value() + that.value()); }
-    const bool operator==(const Cutted<V> &that) const { return entries() == that.entries()  &&  value() == that.value(); }
+    const Cutted<V> operator+(const Cutted<V> &that) const { return Cutted<V>(entries + that.entries, value + that.value); }
+    const bool operator==(const Cutted<V> &that) const { return entries == that.entries  &&  value == that.value; }
 
     const json toJsonFragment() const {
       return {
-        {"entries", entries()},
+        {"entries", entries},
         {"type", value.name()},
-        {"data", value().toJsonFragment()},
+        {"data", value.toJsonFragment()},
       };
     }
   };
