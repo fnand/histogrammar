@@ -29,7 +29,7 @@ using json = nlohmann::json;
 namespace histogrammar {
   //////////////////////////////////////////////////////////////// utilities
 
-  std::string VERSION = "0.6";
+  std::string VERSION = "0.7-prerelease";
 
   template <typename DATUM> std::function<double(DATUM)> makeUnweighted() {
     return [](DATUM datum){return 1.0;};
