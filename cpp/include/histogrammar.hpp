@@ -46,7 +46,6 @@ namespace histogrammar {
   template <typename CONTAINER> class Container {
   public:
     virtual const std::string name() const = 0;
-    virtual double entries() const = 0;
     virtual const CONTAINER zero() const = 0;
     virtual const CONTAINER operator+(const CONTAINER &that) const = 0;
     virtual const bool operator==(const CONTAINER &that) const = 0;
@@ -85,25 +84,24 @@ namespace histogrammar {
   class Counted : public Container<Counted> {
     friend class Count;
   private:
-    double entries_;
-    Counted(double entries) : entries_(entries) {
+    Counted(double entries) : entries(entries) {
       if (entries < 0.0)
         throw std::invalid_argument(std::string("entries (") + std::to_string(entries) + std::string(") cannot be negative"));
     }
 
   public:
     using factory_type = Count;
-    Counted(const Counted &that) : entries_(that.entries()) { }
+    Counted(const Counted &that) : entries(that.entries) { }
     const std::string name() const { return factory_type::name(); }
 
-    double entries() const { return entries_; }
+    const double entries;
 
     const Counted zero() const { return Counted(0.0); }
-    const Counted operator+(const Counted &that) const { return Counted(entries() + that.entries()); }
-    const bool operator==(const Counted &that) const { return entries() == that.entries(); }
+    const Counted operator+(const Counted &that) const { return Counted(entries + that.entries); }
+    const bool operator==(const Counted &that) const { return entries == that.entries; }
 
     const json toJsonFragment() const {
-      return entries();
+      return entries;
     }
   };
 
@@ -111,26 +109,25 @@ namespace histogrammar {
   class Counting : public Container<Counting<DATUM> >, public Aggregation<DATUM> {
     friend class Count;
   private:
-    double entries_;
-    Counting(double entries) : entries_(entries) { }
+    Counting(double entries) : entries(entries) { }
 
   public:
     using factory_type = Count;
-    Counting(const Counting<DATUM> &that) : entries_(that.entries()) { }
+    Counting(const Counting<DATUM> &that) : entries(that.entries) { }
     const std::string name() const { return factory_type::name(); }
 
-    double entries() const { return entries_; }
+    double entries;
 
     const Counting<DATUM> zero() const { return Counting<DATUM>(0.0); }
-    const Counting<DATUM> operator+(const Counting<DATUM> &that) const { return Counting<DATUM>(entries() + that.entries()); }
-    const bool operator==(const Counting &that) const { return entries() == that.entries(); }
+    const Counting<DATUM> operator+(const Counting<DATUM> &that) const { return Counting<DATUM>(entries + that.entries); }
+    const bool operator==(const Counting &that) const { return entries == that.entries; }
 
     void fill(DATUM datum, double weight = 1.0) {
-      entries_ += weight;
+      entries += weight;
     }
 
     const json toJsonFragment() const {
-      return entries();
+      return entries;
     }
   };
 
@@ -168,29 +165,27 @@ namespace histogrammar {
   class Summed : public Container<Summed> {
     friend class Sum;
   private:
-    double entries_;
-    double sum_;
-    Summed(double entries, double sum) : entries_(entries), sum_(sum) {
+    Summed(double entries, double sum) : entries(entries), sum(sum) {
       if (entries < 0.0)
         throw std::invalid_argument(std::string("entries (") + std::to_string(entries) + std::string(") cannot be negative"));
     }
 
   public:
     using factory_type = Sum;
-    Summed(const Summed &that) : entries_(that.entries()), sum_(that.sum()) { }
+    Summed(const Summed &that) : entries(that.entries), sum(that.sum) { }
     const std::string name() const { return factory_type::name(); }
 
-    double entries() const { return entries_; }
-    double sum() const { return sum_; }
+    const double entries;
+    const double sum;
 
     const Summed zero() const { return Summed(0.0, 0.0); }
-    const Summed operator+(const Summed &that) const { return Summed(entries() + that.entries(), sum() + that.sum()); }
-    const bool operator==(const Summed &that) const { return entries() == that.entries()  &&  sum() == that.sum(); }
+    const Summed operator+(const Summed &that) const { return Summed(entries + that.entries, sum + that.sum); }
+    const bool operator==(const Summed &that) const { return entries == that.entries  &&  sum == that.sum; }
 
     const json toJsonFragment() const {
       return {
-        {"entries", entries()},
-        {"sum", sum()},
+        {"entries", entries},
+        {"sum", sum},
       };
     }
   };
@@ -198,37 +193,35 @@ namespace histogrammar {
   template <typename DATUM> class Summing : public Container<Summing<DATUM> >, public Aggregation<DATUM> {
     friend class Sum;
   private:
-    double entries_;
-    double sum_;
-    Summing(std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, double entries, double sum) : quantity(quantity), selection(selection), entries_(entries), sum_(sum) { }
+    Summing(std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, double entries, double sum) : quantity(quantity), selection(selection), entries(entries), sum(sum) { }
 
   public:
     using factory_type = Sum;
-    Summing(const Summing &that) : quantity(that.quantity), selection(that.selection), entries_(that.entries()), sum_(that.sum()) { }
-    const std::function<double(DATUM)> quantity;
-    const std::function<double(DATUM)> selection;
+    Summing(const Summing &that) : quantity(that.quantity), selection(that.selection), entries(that.entries), sum(that.sum) { }
     const std::string name() const { return factory_type::name(); }
 
-    double entries() const { return entries_; }
-    double sum() const { return sum_; }
+    const std::function<double(DATUM)> quantity;
+    const std::function<double(DATUM)> selection;
+    double entries;
+    double sum;
 
     const Summing<DATUM> zero() const { return Summing<DATUM>(quantity, selection, 0.0, 0.0); }
-    const Summing<DATUM> operator+(const Summing<DATUM> &that) const { return Summing<DATUM>(quantity, selection, entries() + that.entries(), sum() + that.sum()); }
-    const bool operator==(const Summing &that) const { return entries() == that.entries()  &&  sum() == that.sum(); }
+    const Summing<DATUM> operator+(const Summing<DATUM> &that) const { return Summing<DATUM>(quantity, selection, entries + that.entries, sum + that.sum); }
+    const bool operator==(const Summing &that) const { return entries == that.entries  &&  sum == that.sum; }
 
     void fill(DATUM datum, double weight = 1.0) {
       double w = weight * selection(datum);
       if (w > 0.0) {
         double q = quantity(datum);
-        entries_ += w;
-        sum_ += q * w;
+        entries += w;
+        sum += q * w;
       }
     }
 
     const json toJsonFragment() const {
       return {
-        {"entries", entries()},
-        {"sum", sum()},
+        {"entries", entries},
+        {"sum", sum},
       };
     }
   };
@@ -267,48 +260,43 @@ namespace histogrammar {
 
   class BinMethods {
   public:
-    virtual int num() const = 0;
-    virtual double low() const = 0;
-    virtual double high() const = 0;
+    BinMethods(int num, double low, double high) : num(num), low(low), high(high) { }
+
+    const int num;
+    const double low;
+    const double high;
 
     int bin(double x) const {
       if (under(x)  ||  over(x)  ||  nan(x))
         return -1;
       else
-        return (int)floor(num() * (x - low()) / (high() - low()));
+        return (int)floor(num * (x - low) / (high - low));
     }
 
     bool under(double x) const {
-      return !isnan(x)  &&  x < low();
+      return !isnan(x)  &&  x < low;
     }
     bool over(double x) const {
-      return !isnan(x)  &&  x >= high();
+      return !isnan(x)  &&  x >= high;
     }
     bool nan(double x) const {
       return isnan(x);
     }
 
     const std::vector<int> indexes() const {
-      std::vector<int> out(num());
+      std::vector<int> out(num);
       std::iota(out.begin(), out.end(), 0);
       return out;
     }
     const std::pair<double, double> range(int index) const {
-      return std::pair<double, double>((high() - low()) * index / num() + low(), (high() - low()) * (index + 1) / num() + low());
+      return std::pair<double, double>((high - low) * index / num + low, (high - low) * (index + 1) / num + low);
     }
   };
 
   template <typename V, typename U, typename O, typename N> class Binned : public Container<Binned<V, U, O, N> >, public BinMethods {
     friend class Bin;
   protected:
-    double low_;
-    double high_;
-    double entries_;
-    std::vector<V> values_;
-    U underflow_;
-    O overflow_;
-    N nanflow_;
-    Binned(double low, double high, double entries, std::vector<V> values, U underflow, O overflow, N nanflow) : low_(low), high_(high), entries_(entries), values_(values), underflow_(underflow), overflow_(overflow), nanflow_(nanflow) {
+    Binned(double low, double high, double entries, std::vector<V> values, U underflow, O overflow, N nanflow) : BinMethods(values.size(), low, high), entries(entries), values(values), underflow(underflow), overflow(overflow), nanflow(nanflow) {
       static_assert(std::is_base_of<Container<V>, V>::value, "Binned values type must be a Container");
       static_assert(std::is_base_of<Container<U>, U>::value, "Binned underflow type must be a Container");
       static_assert(std::is_base_of<Container<O>, O>::value, "Binned overflow type must be a Container");
@@ -322,65 +310,61 @@ namespace histogrammar {
     }
   public:
     using factory_type = Bin;
-    Binned(const Binned &that) : low_(that.low()), high_(that.high()), entries_(that.entries()), values_(that.values()), underflow_(that.underflow()), overflow_(that.overflow()), nanflow_(that.nanflow()) { }
-
+    Binned(const Binned &that) : BinMethods(that.values.size(), that.low, that.high), entries(that.entries), values(that.values), underflow(that.underflow), overflow(that.overflow), nanflow(that.nanflow) { }
     const std::string name() const { return factory_type::name(); }
 
-    int num() const { return values_.size(); }
-    double low() const { return low_; }
-    double high() const { return high_; }
-    double entries() const { return entries_; }
-    const std::vector<V> &values() const { return values_; }
-    const U &underflow() const { return underflow_; }
-    const O &overflow() const { return overflow_; }
-    const N &nanflow() const { return nanflow_; }
+    const double entries;
+    const std::vector<V> values;
+    const U underflow;
+    const O overflow;
+    const N nanflow;
 
-    const V &at(int index) const { return values_[index]; }
+    const V &at(int index) const { return values[index]; }
 
     const Binned<V, U, O, N> zero() const {
       std::vector<V> newvalues;
-      newvalues.reserve(num());
-      for (int i = 0;  i < num();  i++)
+      newvalues.reserve(num);
+      for (int i = 0;  i < num;  i++)
         newvalues.push_back(at(i).zero());
-      return Binned<V, U, O, N>(low_, high_, entries_, newvalues, underflow_.zero(), overflow_.zero(), nanflow_.zero());
+      return Binned<V, U, O, N>(low, high, entries, newvalues, underflow.zero(), overflow.zero(), nanflow.zero());
     }
 
     const Binned<V, U, O, N> operator+(const Binned<V, U, O, N> &that) const {
-      if (low() != that.low())
-        throw std::invalid_argument(std::string("cannot add Binned because low differs (") + std::to_string(low()) + std::string(" vs ") + std::to_string(that.low()) + std::string(")"));
-      if (high() != that.high())
-        throw std::invalid_argument(std::string("cannot add Binned because high differs (") + std::to_string(high()) + std::string(" vs ") + std::to_string(that.high()) + std::string(")"));
-      if (num() != that.num())
-        throw std::invalid_argument(std::string("cannot add Binned because number of values differs (") + std::to_string(num()) + std::string(" vs ") + std::to_string(that.num()) + std::string(")"));
+      if (low != that.low)
+        throw std::invalid_argument(std::string("cannot add Binned because low differs (") + std::to_string(low) + std::string(" vs ") + std::to_string(that.low) + std::string(")"));
+      if (high != that.high)
+        throw std::invalid_argument(std::string("cannot add Binned because high differs (") + std::to_string(high) + std::string(" vs ") + std::to_string(that.high) + std::string(")"));
+      if (num != that.num)
+        throw std::invalid_argument(std::string("cannot add Binned because number of values differs (") + std::to_string(num) + std::string(" vs ") + std::to_string(that.num) + std::string(")"));
 
       std::vector<V> newvalues;
-      newvalues.reserve(num());
-      for (int i = 0;  i < num();  i++)
+      newvalues.reserve(num);
+      for (int i = 0;  i < num;  i++)
         newvalues.push_back(at(i) + that.at(i));
-      return Binned<V, U, O, N>(low_, high_, entries_, newvalues, underflow() + that.underflow(), overflow() + that.overflow(), nanflow() + that.nanflow());
+      return Binned<V, U, O, N>(low, high, entries, newvalues, underflow + that.underflow, overflow + that.overflow, nanflow + that.nanflow);
     }
 
     const bool operator==(const Binned<V, U, O, N> &that) const {
-      return low() == that.low()  &&  high() == that.high()  &&  entries() == that.entries()  &&  values() == that.values()  &&  underflow() == that.underflow()  &&  overflow() == that.overflow()  &&  nanflow() == that.nanflow();
+      return low == that.low  &&  high == that.high  &&  entries == that.entries  &&  values == that.values  &&  underflow == that.underflow  &&  overflow == that.overflow  &&  nanflow == that.nanflow;
     }
 
     const json toJsonFragment() const {
       std::vector<json> newvalues;
-      newvalues.reserve(num());
-      for (int i = 0;  i < num();  i++)
+      newvalues.reserve(num);
+      for (int i = 0;  i < num;  i++)
         newvalues.push_back(at(i).toJsonFragment());
       return {
-        {"low", low()},
-        {"high", high()},
-        {"entries", entries()},
-        {"values:type", values_[0].name()},
+        {"low", low},
+        {"high", high},
+        {"entries", entries},
+        {"values:type", values[0].name()},
         {"values", newvalues},
-        {"underflow:type", underflow_.name()},
-        {"underflow", underflow_.toJsonFragment()},
-        {"overflow:type", overflow_.name()},
-        {"overflow", overflow_.toJsonFragment()},
-        {"nanflow:type", nanflow_.name()},
-        {"nanflow", nanflow_.toJsonFragment()},
+        {"underflow:type", underflow.name()},
+        {"underflow", underflow.toJsonFragment()},
+        {"overflow:type", overflow.name()},
+        {"overflow", overflow.toJsonFragment()},
+        {"nanflow:type", nanflow.name()},
+        {"nanflow", nanflow.toJsonFragment()},
       };
     }
   };
@@ -388,15 +372,7 @@ namespace histogrammar {
   template <typename DATUM, typename V, typename U, typename O, typename N> class Binning : public Container<Binning<DATUM, V, U, O, N> >, public Aggregation<DATUM>, public BinMethods {
     friend class Bin;
   private:
-    double low_;
-    double high_;
-    double entries_;
-    std::vector<V> values_;
-    U underflow_;
-    O overflow_;
-    N nanflow_;
-
-    Binning(double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, double entries, std::vector<V> values, U underflow, O overflow, N nanflow) : low_(low), high_(high), quantity(quantity), selection(selection), entries_(entries), values_(values), underflow_(underflow), overflow_(overflow), nanflow_(nanflow) {
+    Binning(double low, double high, std::function<double(DATUM)> quantity, std::function<double(DATUM)> selection, double entries, std::vector<V> values, U underflow, O overflow, N nanflow) : BinMethods(values.size(), low, high), quantity(quantity), selection(selection), entries(entries), values(values), underflow(underflow), overflow(overflow), nanflow(nanflow) {
 
       static_assert(std::is_base_of<Container<V>, V>::value, "Binning values type must be a Container");
       static_assert(std::is_base_of<Aggregation<DATUM>, V>::value, "Binning values type must have Aggregation for this data type");
@@ -417,48 +393,44 @@ namespace histogrammar {
 
   public:
     using factory_type = Bin;
-    Binning(const Binning &that) : low_(that.low()), high_(that.high()), quantity(quantity), selection(selection), entries_(that.entries()), values_(that.values()), underflow_(that.underflow()), overflow_(that.overflow()), nanflow_(that.nanflow()) { }
+    Binning(const Binning &that) : BinMethods(that.values.size(), that.low, that.high), quantity(quantity), selection(selection), entries(that.entries), values(that.values), underflow(that.underflow), overflow(that.overflow), nanflow(that.nanflow) { }
     const std::string name() const { return factory_type::name(); }
 
     const std::function<double(DATUM)> quantity;
     const std::function<double(DATUM)> selection;
+    double entries;
+    std::vector<V> values;
+    U underflow;
+    O overflow;
+    N nanflow;
 
-    int num() const { return values_.size(); }
-    double low() const { return low_; }
-    double high() const { return high_; }
-    double entries() const { return entries_; }
-    const std::vector<V> values() const { return values_; }
-    const U underflow() const { return underflow_; }
-    const O overflow() const { return overflow_; }
-    const N nanflow() const { return nanflow_; }
-
-    const V &at(int index) const { return values_[index]; }
+    const V &at(int index) const { return values[index]; }
 
     const Binning<DATUM, V, U, O, N> zero() const {
       std::vector<V> newvalues;
-      newvalues.reserve(num());
-      for (int i = 0;  i < num();  i++)
+      newvalues.reserve(num);
+      for (int i = 0;  i < num;  i++)
         newvalues.push_back(at(i).zero());
-      return Binning<DATUM, V, U, O, N>(low_, high_, quantity, selection, entries_, newvalues, underflow_, overflow_, nanflow_);
+      return Binning<DATUM, V, U, O, N>(low, high, quantity, selection, entries, newvalues, underflow, overflow, nanflow);
     }
 
     const Binning<DATUM, V, U, O, N> operator+(const Binning<DATUM, V, U, O, N> &that) const {
-      if (low() != that.low())
-        throw std::invalid_argument(std::string("cannot add Binned because low differs (") + std::to_string(low()) + std::string(" vs ") + std::to_string(that.low()) + std::string(")"));
-      if (high() != that.high())
-        throw std::invalid_argument(std::string("cannot add Binned because high differs (") + std::to_string(high()) + std::string(" vs ") + std::to_string(that.high()) + std::string(")"));
-      if (num() != that.num())
-        throw std::invalid_argument(std::string("cannot add Binned because number of values differs (") + std::to_string(num()) + std::string(" vs ") + std::to_string(that.num()) + std::string(")"));
+      if (low != that.low)
+        throw std::invalid_argument(std::string("cannot add Binned because low differs (") + std::to_string(low) + std::string(" vs ") + std::to_string(that.low) + std::string(")"));
+      if (high != that.high)
+        throw std::invalid_argument(std::string("cannot add Binned because high differs (") + std::to_string(high) + std::string(" vs ") + std::to_string(that.high) + std::string(")"));
+      if (num != that.num)
+        throw std::invalid_argument(std::string("cannot add Binned because number of values differs (") + std::to_string(num) + std::string(" vs ") + std::to_string(that.num) + std::string(")"));
 
       std::vector<V> newvalues;
-      newvalues.reserve(num());
-      for (int i = 0;  i < num();  i++)
+      newvalues.reserve(num);
+      for (int i = 0;  i < num;  i++)
         newvalues.push_back(at(i) + that.at(i));
-      return Binning<DATUM, V, U, O, N>(low_, high_, quantity, selection, entries_, newvalues, underflow() + that.underflow(), overflow() + that.overflow(), nanflow() + that.nanflow());
+      return Binning<DATUM, V, U, O, N>(low, high, quantity, selection, entries, newvalues, underflow + that.underflow, overflow + that.overflow, nanflow + that.nanflow);
     }
 
     const bool operator==(const Binning<DATUM, V, U, O, N> &that) const {
-      return low() == that.low()  &&  high() == that.high()  &&  entries() == that.entries()  &&  values() == that.values()  &&  underflow() == that.underflow()  &&  overflow() == that.overflow()  &&  nanflow() == that.nanflow();
+      return low == that.low  &&  high == that.high  &&  entries == that.entries  &&  values == that.values  &&  underflow == that.underflow  &&  overflow == that.overflow  &&  nanflow == that.nanflow;
     }
 
     void fill(DATUM datum, double weight = 1.0) {
@@ -466,35 +438,35 @@ namespace histogrammar {
       if (w > 0.0) {
         double q = quantity(datum);
 
-        entries_ += w;
+        entries += w;
         if (under(q))
-          underflow_.fill(datum, w);
+          underflow.fill(datum, w);
         else if (over(q))
-          overflow_.fill(datum, w);
+          overflow.fill(datum, w);
         else if (nan(q))
-          nanflow_.fill(datum, w);
+          nanflow.fill(datum, w);
         else
-          values_[bin(q)].fill(datum, w);
+          values[bin(q)].fill(datum, w);
       }
     }
 
     const json toJsonFragment() const {
       std::vector<json> newvalues;
-      newvalues.reserve(num());
-      for (int i = 0;  i < num();  i++)
+      newvalues.reserve(num);
+      for (int i = 0;  i < num;  i++)
         newvalues.push_back(at(i).toJsonFragment());
       return {
-        {"low", low()},
-        {"high", high()},
-        {"entries", entries()},
-        {"values:type", values_[0].name()},
+        {"low", low},
+        {"high", high},
+        {"entries", entries},
+        {"values:type", values[0].name()},
         {"values", newvalues},
-        {"underflow:type", underflow_.name()},
-        {"underflow", underflow_.toJsonFragment()},
-        {"overflow:type", overflow_.name()},
-        {"overflow", overflow_.toJsonFragment()},
-        {"nanflow:type", nanflow_.name()},
-        {"nanflow", nanflow_.toJsonFragment()},
+        {"underflow:type", underflow.name()},
+        {"underflow", underflow.toJsonFragment()},
+        {"overflow:type", overflow.name()},
+        {"overflow", overflow.toJsonFragment()},
+        {"nanflow:type", nanflow.name()},
+        {"nanflow", nanflow.toJsonFragment()},
       };
     }
   };
@@ -567,10 +539,11 @@ namespace histogrammar {
 
   public:
     using factory_type = Cut;
-    Cutted(const Cutted &that) : entries_(that.entries), value_(that.value) { }
+    Cutted(const Cutted &that) : entries(that.entries), value(that.value) { }
+    const std::string name() const { return factory_type::name(); }
+
     const double entries;
     const V value;
-    const std::string name() const { return factory_type::name(); }
 
     const Cutted<V> zero() const { return Cutted<V>(0.0, value.zero()); }
     const Cutted<V> operator+(const Cutted<V> &that) const { return Cutted<V>(entries + that.entries, value + that.value); }
@@ -588,39 +561,37 @@ namespace histogrammar {
   template <typename DATUM, typename V> class Cutting : public Container<Cutting<DATUM, V> >, public Aggregation<DATUM> {
     friend class Cut;
   private:
-    double entries_;
-    V value_;
-    Cutting(double entries, std::function<double(DATUM)> selection, V value) : entries_(entries), selection(selection), value_(value) {
+    Cutting(double entries, std::function<double(DATUM)> selection, V value) : entries(entries), selection(selection), value(value) {
       static_assert(std::is_base_of<Container<V>, V>::value, "Cutting values type must be a Container");
       static_assert(std::is_base_of<Aggregation<DATUM>, V>::value, "Cutting values type must have Aggregation for this data type");
     }
   public:
     using factory_type = Cut;
-    Cutting(const Cutting &that) : entries_(that.entries()), selection(selection), value_(that.value()) { }
-    const std::function<double(DATUM)> selection;
+    Cutting(const Cutting &that) : entries(that.entries()), selection(selection), value(that.value()) { }
     const std::string name() const { return factory_type::name(); }
 
-    double entries() const { return entries_; }
-    double value() const { return value_; }
+    double entries;
+    const std::function<double(DATUM)> selection;
+    const V value;
 
-    const Cutting<DATUM, V> zero() const { return Cutting<DATUM, V>(0.0, selection, value().zero()); }
-    const Cutting<DATUM, V> operator+(const Cutting<DATUM, V> &that) const { return Cutting<DATUM, V>(entries() + that.entries(), selection, value() + that.value()); }
-    const bool operator==(const Cutting<DATUM, V> &that) const { return entries() == that.entries()  &&  value() == that.value(); }
+    const Cutting<DATUM, V> zero() const { return Cutting<DATUM, V>(0.0, selection, value.zero()); }
+    const Cutting<DATUM, V> operator+(const Cutting<DATUM, V> &that) const { return Cutting<DATUM, V>(entries + that.entries, selection, value + that.value); }
+    const bool operator==(const Cutting<DATUM, V> &that) const { return entries == that.entries  &&  value == that.value; }
 
     void fill(DATUM datum, double weight = 1.0) {
       double w = weight * selection(datum);
       if (w > 0.0)
-        value().fill(datum, w);
+        value.fill(datum, w);
 
       // no possibility of exception from here on out (for rollback)
-      entries_ += weight;
+      entries += weight;
     }
 
     const json toJsonFragment() const {
       return {
-        {"entries", entries()},
-        {"type", value().name()},
-        {"data", value().toJsonFragment()},
+        {"entries", entries},
+        {"type", value.name()},
+        {"data", value.toJsonFragment()},
       };
     }
   };

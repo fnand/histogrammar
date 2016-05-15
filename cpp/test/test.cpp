@@ -22,7 +22,7 @@ using namespace histogrammar;
 void test_Counted() {
   auto one = Count::ed(1);
   auto two = Count::ed(2);
-  std::cout << "Counted: " << one.entries() << " + " << two.entries() << " = " << (one + two).entries() << std::endl;
+  std::cout << "Counted: " << one.entries << " + " << two.entries << " = " << (one + two).entries << std::endl;
   auto zero = one.zero();
   assert(Count::fromJson(one.toJson()) == one);
 }
@@ -33,7 +33,7 @@ void test_Counting() {
   one.fill("hello");
   two.fill("hey");
   two.fill("there");
-  std::cout << "Counting: " << one.entries() << " + " << two.entries() << " = " << (one + two).entries() << std::endl;
+  std::cout << "Counting: " << one.entries << " + " << two.entries << " = " << (one + two).entries << std::endl;
   auto zero = one.zero();
   assert(Count::fromJson(Count::fromJson(one.toJson()).toJson()) == Count::fromJson(one.toJson()));
 }
@@ -41,8 +41,8 @@ void test_Counting() {
 void test_Summed() {
   auto one = Sum::ed(1, 1);
   auto two = Sum::ed(2, 2);
-  std::cout << "Summed entries: " << one.entries() << " + " << two.entries() << " = " << (one + two).entries() << std::endl;
-  std::cout << "Summed sum: " << one.sum() << " + " << two.sum() << " = " << (one + two).sum() << std::endl;
+  std::cout << "Summed entries: " << one.entries << " + " << two.entries << " = " << (one + two).entries << std::endl;
+  std::cout << "Summed sum: " << one.sum << " + " << two.sum << " = " << (one + two).sum << std::endl;
   auto zero = one.zero();
   assert(Sum::fromJson(one.toJson()) == one);
 }
@@ -53,8 +53,8 @@ void test_Summing() {
   one.fill("hello");
   two.fill("hey");
   two.fill("there");
-  std::cout << "Summing entries: " << one.entries() << " + " << two.entries() << " = " << (one + two).entries() << std::endl;
-  std::cout << "Summing sum: " << one.sum() << " + " << two.sum() << " = " << (one + two).sum() << std::endl;
+  std::cout << "Summing entries: " << one.entries << " + " << two.entries << " = " << (one + two).entries << std::endl;
+  std::cout << "Summing sum: " << one.sum << " + " << two.sum << " = " << (one + two).sum << std::endl;
   auto zero = one.zero();
   assert(Sum::fromJson(Sum::fromJson(one.toJson()).toJson()) == Sum::fromJson(one.toJson()));
 }
@@ -67,7 +67,7 @@ void test_Binned() {
   auto two = Bin::ed(-3, 5, 0.0, twovalues, Count::ed(0), Count::ed(0), Count::ed(0));
   auto three = one + two;
 
-  std::cout << "Binned values: " << three.at(0).entries() << " " << three.at(1).entries() << " " << three.at(2).entries() << std::endl;
+  std::cout << "Binned values: " << three.at(0).entries << " " << three.at(1).entries << " " << three.at(2).entries << std::endl;
   auto zero = one.zero();
   assert((Bin::fromJson<Counted, Counted, Counted, Counted>(one.toJson()) == one));
 }
@@ -82,7 +82,7 @@ void test_Binning() {
 
   auto three = one + two;
 
-  std::cout << "Binning values: " << three.at(0).entries() << " " << three.at(1).entries() << " " << three.at(2).entries() << " " << three.at(3).entries() << " " << three.at(4).entries() << std::endl;
+  std::cout << "Binning values: " << three.at(0).entries << " " << three.at(1).entries << " " << three.at(2).entries << " " << three.at(3).entries << " " << three.at(4).entries << std::endl;
   auto zero = one.zero();
   assert((Bin::fromJson<Counted, Counted, Counted, Counted>(Bin::fromJson<Counted, Counted, Counted, Counted>(one.toJson()).toJson()) == Bin::fromJson<Counted, Counted, Counted, Counted>(one.toJson())));
 }
