@@ -180,7 +180,7 @@ Aggregation primitives are also easier to implement than graphics, so Histogramm
 
 **Third kind:** primitives that act as containers, passing data to all sub-aggregators.
 
-  * [Cut](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Cut$): Accumulate an aggregator for data that satisfy a cut (or more generally, a weighting).
+  * [Select](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Select$): Accumulate an aggregator for data that satisfy a cut (or more generally, a weighting).
   * [Limit](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Limit$): Accumulate an aggregator until its number of entries reaches a predefined limit.
   * [Label](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Label$): Accumulate any number of containers of the SAME type and label them with strings. Every one is filled with every input datum.
   * [UntypedLabel](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.UntypedLabel$): Accumulate containers of any type except Count and label them with strings. Every one is filled with every input datum.
@@ -214,7 +214,7 @@ Last released version was 0.6. The following refers to the git master branch.
 | Fraction               | done  | done                   |         |         |         |            |         |
 | Stack                  | done  | done                   |         |         |         |            |         |
 | Partition              | done  | done                   |         |         |         |            |         |
-| Cut                    | done  | done                   | done    |         |         |            |         |
+| Select                 | done  | done                   | done    |         |         |            |         |
 | Limit                  | done  | done                   |         |         |         |            |         |
 | Label                  | done  | done                   |         |         |         |            |         |
 | UntypedLabel           | done  | done                   |         |         |         |            |         |
