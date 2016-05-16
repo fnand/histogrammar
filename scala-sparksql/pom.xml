@@ -15,7 +15,7 @@
   <!-- See the License for the specific language governing permissions and         -->
   <!-- limitations under the License.                                              -->
 
-  <name>histogrammar</name>
+  <name>histogrammar-sparksql</name>
   <description>Adapter for using Histogrammar in SparkSQL.</description>
   <inceptionYear>2016</inceptionYear>
 
