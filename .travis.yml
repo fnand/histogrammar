@@ -8,4 +8,7 @@ addons:
       - g++-4.8
       - python3
 
-script: sh test-all.sh
+env:
+  - CXX="g++-4.8"
+
+script: test-all.sh
