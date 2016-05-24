@@ -8,4 +8,4 @@ addons:
       - g++-4.8
       - python3
 
-script: sh .travis.sh
+script: sh test-all.sh
