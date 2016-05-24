@@ -11,4 +11,4 @@ addons:
 env:
   - CXX="g++-4.8"
 
-script: test-all.sh
+script: ./test-all.sh
