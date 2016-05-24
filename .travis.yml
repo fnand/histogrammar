@@ -6,10 +6,6 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-4.8
+      - python3
 
-env:
-  - TEST_DIR=python; TEST_SCRIPT="python setup.py test"
-  - TEST_DIR=scala;  TEST_SCRIPT="mvn test"
-  - TEST_DIR=cpp;    TEST_SCRIPT="make";     CXX="g++-4.8"
-
-script: cd $TEST_DIR;  $TEST_SCRIPT
+script: sh test-all.sh
