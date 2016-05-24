@@ -91,19 +91,28 @@ class CentrallyBin(Factory, Container, CentralBinsDistribution, CentrallyBinMeth
     def children(self):
         return [self.nanflow] + [v for c, v in self.bins]
 
-    def toJsonFragment(self): return maybeAdd({
-        "entries": floatToJson(self.entries),
-        "bins:type": self.bins[0][1].name,
-        "bins": [{"center": floatToJson(c), "value": v.toJsonFragment()} for c, v in self.bins],
-        "min": floatToJson(self.min),
-        "max": floatToJson(self.max),
-        "nanflow:type": self.nanflow.name,
-        "nanflow": self.nanflow.toJsonFragment(),
-        }, name=self.quantity.name)
+    def toJsonFragment(self, suppressName):
+        if getattr(self.bins[0][1], "quantity", None) is not None:
+            binsName = self.bins[0][1].quantity.name
+        elif getattr(self.bins[0][1], "quantityName", None) is not None:
+            binsName = self.bins[0][1].quantityName
+        else:
+            binsName = None
+
+        return maybeAdd({
+            "entries": floatToJson(self.entries),
+            "bins:type": self.bins[0][1].name,
+            "bins": [{"center": floatToJson(c), "value": v.toJsonFragment(True)} for c, v in self.bins],
+            "min": floatToJson(self.min),
+            "max": floatToJson(self.max),
+            "nanflow:type": self.nanflow.name,
+            "nanflow": self.nanflow.toJsonFragment(False),
+            }, **{"name": None if suppressName else self.quantity.name,
+                  "bins:name": binsName})
 
     @staticmethod
-    def fromJsonFragment(json):
-        if isinstance(json, dict) and hasKeys(json.keys(), ["entries", "bins:type", "bins", "min", "max", "nanflow:type", "nanflow"], ["name"]):
+    def fromJsonFragment(json, nameFromParent):
+        if isinstance(json, dict) and hasKeys(json.keys(), ["entries", "bins:type", "bins", "min", "max", "nanflow:type", "nanflow"], ["name", "bins:name"]):
             if isinstance(json["entries"], (int, long, float)):
                 entries = float(json["entries"])
             else:
@@ -120,6 +129,12 @@ class CentrallyBin(Factory, Container, CentralBinsDistribution, CentrallyBinMeth
                 factory = Factory.registered[json["bins:type"]]
             else:
                 raise JsonFormatException(json, "CentrallyBin.bins:type")
+            if isinstance(json.get("bins:name", None), basestring):
+                binsName = json["bins:name"]
+            elif json.get("bins:name", None) is None:
+                binsName = None
+            else:
+                raise JsonFormatException(json["bins:name"], "CentrallyBin.bins:name")
             if isinstance(json["bins"], list):
                 bins = []
                 for i, binpair in enumerate(json["bins"]):
@@ -129,7 +144,7 @@ class CentrallyBin(Factory, Container, CentralBinsDistribution, CentrallyBinMeth
                         else:
                             JsonFormatException(binpair["center"], "CentrallyBin.bins {} center".format(i))
                         
-                        bins.append((center, factory.fromJsonFragment(binpair["value"])))
+                        bins.append((center, factory.fromJsonFragment(binpair["value"], binsName)))
 
                     else:
                         raise JsonFormatException(binpair, "CentrallyBin.bins {}".format(i))
@@ -148,10 +163,10 @@ class CentrallyBin(Factory, Container, CentralBinsDistribution, CentrallyBinMeth
                 nanflowFactory = Factory.registered[json["nanflow:type"]]
             else:
                 raise JsonFormatException(json, "CentrallyBin.nanflow:type")
-            nanflow = nanflowFactory.fromJsonFragment(json["nanflow"])
+            nanflow = nanflowFactory.fromJsonFragment(json["nanflow"], None)
 
             out = CentrallyBin.ed(entries, bins, min, max, nanflow)
-            out.quantity.name = name
+            out.quantity.name = nameFromParent if name is None else name
             return out
 
         else:

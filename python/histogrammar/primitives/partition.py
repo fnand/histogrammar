@@ -76,15 +76,24 @@ class Partition(Factory, Container):
     def children(self):
         return self.values
 
-    def toJsonFragment(self): return maybeAdd({
-        "entries": floatToJson(self.entries),
-        "type": self.cuts[0][1].name,
-        "data": [{"atleast": floatToJson(atleast), "data": sub.toJsonFragment()} for atleast, sub in self.cuts],
-        }, name=self.quantity.name)
+    def toJsonFragment(self, suppressName):
+        if getattr(self.cuts[0][1], "quantity", None) is not None:
+            binsName = self.cuts[0][1].quantity.name
+        elif getattr(self.cuts[0][1], "quantityName", None) is not None:
+            binsName = self.cuts[0][1].quantityName
+        else:
+            binsName = None
+
+        return maybeAdd({
+            "entries": floatToJson(self.entries),
+            "type": self.cuts[0][1].name,
+            "data": [{"atleast": floatToJson(atleast), "data": sub.toJsonFragment(True)} for atleast, sub in self.cuts],
+            }, **{"name": None if suppressName else self.quantity.name,
+                  "data:name": binsName})
 
     @staticmethod
-    def fromJsonFragment(json):
-        if isinstance(json, dict) and hasKeys(json.keys(), ["entries", "type", "data"], ["name"]):
+    def fromJsonFragment(json, nameFromParent):
+        if isinstance(json, dict) and hasKeys(json.keys(), ["entries", "type", "data"], ["name", "data:name"]):
             if isinstance(json["entries"], (int, long, float)):
                 entries = float(json["entries"])
             else:
@@ -102,6 +111,13 @@ class Partition(Factory, Container):
             else:
                 raise JsonFormatException(json, "Partition.type")
 
+            if isinstance(json.get("data:name", None), basestring):
+                dataName = json["data:name"]
+            elif json.get("data:name", None) is None:
+                dataName = None
+            else:
+                raise JsonFormatException(json["data:name"], "Partition.data:name")
+
             if isinstance(json["data"], list):
                 cuts = []
                 for i, elementPair in enumerate(json["data"]):
@@ -109,13 +125,13 @@ class Partition(Factory, Container):
                         if elementPair["atleast"] not in ("nan", "inf", "-inf") and not isinstance(elementPair["atleast"], (int, long, float)):
                             raise JsonFormatException(json, "Partition.data {} atleast".format(i))
 
-                        cuts.append((float(elementPair["atleast"]), factory.fromJsonFragment(elementPair["data"])))
+                        cuts.append((float(elementPair["atleast"]), factory.fromJsonFragment(elementPair["data"], dataName)))
 
                     else:
                         raise JsonFormatException(json, "Partition.data {}".format(i))
 
                 out = Partition.ed(entries, *cuts)
-                out.quantity.name = name
+                out.quantity.name = nameFromParent if name is None else name
                 return out
 
             else:
