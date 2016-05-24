@@ -11,7 +11,8 @@ addons:
 
 cache:
   directories:
-    - '$HOME/.m2/repository'
+    - /var/lib/apt
+    - /var/cache/apt
 
 env:
   - CXX="g++-4.8"
