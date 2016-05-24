@@ -29,3 +29,9 @@ echo
 cd scala
 mvn test
 cd ..
+cd scala-sparksql
+mvn test
+cd ..
+# cd scala-bokeh
+# mvn test
+# cd ..
