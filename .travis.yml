@@ -10,7 +10,4 @@ addons:
 env:
   - CXX="g++-4.8"
 
-script: |
-  cd python; python setup.py test; python3 setup.py test; cd ..
-  cd scala; mvn test; cd ..
-  cd cpp; make; cd ..
+script: cd python; python setup.py test; python3 setup.py test; cd ..; cd scala; mvn test; cd ..; cd cpp; make; cd ..
