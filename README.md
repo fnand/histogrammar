@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Histogrammar is an experiment in aggregating data with functional primitives. It serves the same need as HBOOK and its descendants--- summarizing a large dataset with discretized distributions--- but it does so with composable aggregators instead of fixed histogram types.
+Histogrammar is an experiment in aggregating data with functional primitives. It serves the same need as HBOOK and its descendants--- summarizing a large dataset with discretized distributions--- but it does so using composable aggregators instead of fixed histogram types.
 
 For instance, to book and fill a histogram in [ROOT](http://root.cern.ch), you would do this:
 
