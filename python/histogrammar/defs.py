@@ -46,6 +46,10 @@ class Factory(object):
             pass
 
     @staticmethod
+    def fromJsonFragment(json, nameFromParent):
+        raise NotImplementedError
+
+    @staticmethod
     def fromJson(json):
         if isinstance(json, basestring):
             json = jsonlib.loads(json)
@@ -59,7 +63,7 @@ class Factory(object):
             if name not in Factory.registered:
                 raise JsonFormatException(json, "unrecognized container (is it a custom container that hasn't been registered?): {}".format(name))
 
-            return Factory.registered[name].fromJsonFragment(json["data"])
+            return Factory.registered[name].fromJsonFragment(json["data"], None)
 
         else:
             raise JsonFormatException(json, "Factory")
@@ -79,8 +83,8 @@ class Container(object):
     @property
     def children(self): raise NotImplementedError
 
-    def toJson(self): return {"type": self.name, "data": self.toJsonFragment()}
-    def toJsonFragment(self): raise NotImplementedError
+    def toJson(self): return {"type": self.name, "data": self.toJsonFragment(False)}
+    def toJsonFragment(self, suppressName): raise NotImplementedError
     def __repr__(self): raise NotImplementedError
 
 unweighted = named("unweighted", lambda datum: 1.0)
