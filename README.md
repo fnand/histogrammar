@@ -1,6 +1,6 @@
 # Histogrammar
 
-## Introduction
+## What is this and why might I want it?
 
 Histogrammar is an experiment in aggregating data with functional primitives. It serves the same need as HBOOK and its descendants&mdash; summarizing a large dataset with discretized distributions&mdash; but it does so using composable aggregators instead of fixed histogram types.
 
@@ -13,7 +13,9 @@ For instance, to book and fill a histogram in [ROOT](http://root.cern.ch), you w
 
 But in histogrammar, you could do it like this:
 
-    histogram = Select(lambda mu: mu.pt > 10, Bin(100, 0, 10, lambda mu: mu.mass, Count()))
+    histogram = Select(lambda mu: mu.pt > 10,
+                    Bin(100, 0, 10, lambda mu: mu.mass,
+                        Count()))
     for muon in muons:
         histogram.fill(muon)
 
@@ -70,6 +72,6 @@ Histogrammar will someday be available in popular repositories, such as Maven Ce
 
 [Installation instructions](http://histogrammar.org/docs/install.html) are available on the user documentation site.
 
-### The last word
+## The last word
 
 Histogrammar is in an experimental state, with some features working and some basic features still in development. It is not analysis-ready, but will become so faster if users try it out on their pet projects and provide feedback. Please let us know if anything doesn't work or doesn't make sense!
