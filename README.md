@@ -1,224 +1,75 @@
 # Histogrammar
 
-## Quick links to reference documentation
+## Introduction
 
-  * [Scaladocs for the Scala version](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.package)
-  * [Catalog of primitives](#catalog-of-primitives)
-  * [Current status](#status)
+Histogrammar is an experiment in aggregating data with functional primitives. It serves the same need as HBOOK and its descendants&mdash; summarizing a large dataset with discretized distributions&mdash; but it does so using composable aggregators instead of fixed histogram types.
 
-## What is this and why might I want it?
+For instance, to book and fill a histogram in [ROOT](http://root.cern.ch), you would do this:
 
-Histogrammar is a declarative grammar for booking histograms with automatic filling and merging. It simplifies the process of reducing a huge, distributed dataset to a form that can be plotted, especially in a functional workflow like Apache Spark. It is a standardized set of routines available in many programming languages that interoperate by serializing to and from JSON. It also generalizes the concept of histogramming to an algebra of composable primitives, allowing them to be combined in novel ways.
+    histogram = ROOT.TH1F("name", "title", 100, 0, 10)
+    for muon in muons:
+        if muon.pt > 10:
+            histogram.fill(muon.mass)
 
-That was the concise overview. Here's a simple example.
+But in histogrammar, you could do it like this:
 
-```scala
-import org.dianahep.histogrammar._
-import org.dianahep.histogrammar.histogram._
+    histogram = Select(lambda mu: mu.pt > 10, Bin(100, 0, 10, lambda mu: mu.mass, Count()))
+    for muon in muons:
+        histogram.fill(muon)
 
-val px_histogram = Histogram(100, -5, 5, {mu: Muon => mu.px})
-val pt_histogram = Histogram(80, 0, 8, {mu: Muon => Math.sqrt(mu.px*mu.px + mu.py*mu.py)})
-val cut_histogram = Histogram(100, -5, 5, {mu: Muon => mu.px}, {mu: Muon => mu.py < 0.0})
+because a filtered histogram is just a selection on binned counting. To accumulate means and standard deviations of track quality in each bin instead of counting (a "profile plot" instead of a 1-d histogram), you'd change the `Count` to `Deviate` and leave everything else the same:
 
-val all_histograms = Label("px" -> px_histogram, "pt" -> pt_histogram, "cut" -> cut_histogram)
+    histogram = Select(lambda mu: mu.pt > 10,
+                    Bin(100, 0, 10, lambda mu: mu.mass,
+                        Deviate(lambda mu: mu.trackQuality)))
 
-val final_histogram = rdd.aggregate(all_histograms)(new Increment, new Combine)
+To make a 2-d histogram of `px` and `py` instead of a 1-d histogram, you'd do
 
-println(final_histogram("pt").ascii)
-```
+    histogram = Bin(100, 0, 50, lambda mu: mu.px,
+                    Bin(100, 0, 50, lambda mu: mu.py,
+                        Count()))
 
-The `rdd.aggregate` function submits the histograms to Spark, which fills independent partial histograms in each of its worker nodes, combines partial results, and returns the final result for plotting. However, it required very little input from the user. In this example, `rdd` is a dataset of `Muon` objects, which the histograms view in different ways.
+because now the content of each bin is another histogram (the x slices). And so on. A good set of primitives and the right lambda functions can replace specialized logic in the for loop. All of the above would be filled with exactly the same loop:
 
-## Managing complexity
+    for muon in muons:
+        histogram.fill(muon)
 
-Most of the code in this snippet is concerned with booking the histograms (setting the range and number of bins) and describing how to fill them with data. The fill rule is given in each histogram's constructor, so that the data analyst doesn't have to maintain the booking in one part of the code, filling in another, and (for distributed jobs) combining in yet another part of the code. In a data analysis with hundreds of histograms, rather than three, this consolidation helps considerably.
+## Benefits
 
-The `all_histograms` object in the example above is a mapping from names to histograms. It, too, has a booking-incrementing-combining lifecycle, where its fill rule is to pass all of the data to all of its constituents. It is a sort of "meta-histogram," an aggregator of aggregators.
+Moving specialized logic out of the for loop allows the physicist to describe an entire analysis declaratively, in subdirectories like:
 
-We could orgnize the histograms into directories by nesting them, because `Label` classes are composable:
+    Label(dir1 = Label(hist1 = Bin(...),
+                       hist2 = Bin(...)),
+          dir2 = ...)
 
-```scala
-val directories = Label("momentum" -> Label("px" -> ..., "pt" -> ...),
-                        "position" -> Label("x" -> ..., "y" -> ...))
-```
+This tree expresses what the physicist wants to aggregate and how they want to cut it up. The actual aggregation can be performed by an automated system that handles indexing, parallelization, and merging partial results. Each primitive has a custom `fill` method and a `+` operator for (mutable) aggregating and (immutable) merging, which fits perfectly into Spark's `aggregate` functional, Hadoop's `reduce`, an SQL aggregation function, parallel processing on GPUs, etc. It makes analysis code independent of the system where data are analyzed.
 
-## Generalized nesting
+In addition, it formalizes the analysis so that it can be inspected algorithmically. At any level, the cuts applied to a particular histogram can be inferred by tracing the primitives from the root of the tree to that histogram. Named functions provide bookkeeping, so that a quantity and its label are defined in one place, allowing units to be changed across a suite of plots with a localized code change, reducing errors.
 
-But what if we wanted to make a histogram of histograms? That is, something like the following:
+## Scope
 
-([source](https://cds.cern.ch/record/213816))
+Histogrammar aggregates data but does not produce plots (much like HBOOK, which had an associated HPLOT for 1970's era line printers). Histogrammar has extensions to pass its aggregated data to many different plotting libraries.
 
-<img src="docs/wiki-images/histograms_of_histograms.png">
+A user can therefore aggregate data in a hard-to-reach place, such as an intermediate value in a GPU calculation or on a remote supercomputer, bring back the aggregated data as JSON, and then plot it in their favorite package. Aggregation and plotting are separate, so that changing the color of axis tickmarks doesn't require re-running the analysis code.
 
-The top row of plots show data in one region of _y_ (rapidity), the bottom show another; each column shows data in a different "bin" of centrality, and the plots themselves are histograms of _m_ (dimuon mass).
+## Status and Documentation
 
-Just as we could make directories by nesting the `Label` class, we should be able to make multivariate views of a dataset by nesting histograms. But to do that effectively, we have to decompose histograms into their fundamental components.
+### For developers
 
-## What is a histogram, really?
+[See the wiki](../../wiki) for communication among the Histogrammar developers, which includes fine-grained status updates and future goals. [Travis-CI](http://travis-ci.org/diana-hep/histogrammar) shows the current state of the build and unit tests.
 
-A histogram is a summary of a dataset, produced by aggregation. There are other ways to summarize a dataset by aggregation: simply counting the number of entries, computing the sum of some quantity, computing a mean or standard deviation, etc. Each of these summarizes the data in a different way, conveying more or less information.
+### For users
 
-A histogram is a continuous variable that has been discretized (binned) and the number of entries in each bin are simply counted. Thus, we could write a histogram aggregator like this:
+The average user should go to [histogrammar.org/docs](http://histogrammar.org/docs) for tutorials, examples, and reference documentation.
 
-```scala
-val histogram = Bin(numberOfBins, low, high, fillRule, value = Count())
-```
+Developers and users should both report errors on the [issues tab](http://github.com/diana-hep/histogrammar/issues).
 
-The `Bin` is a container of sub-aggregators, much like `Label`, but its behavior is different. Now consider the following.
+### Installation
 
-```scala
-val h2d = Bin(numBinsX, lowX, highX, fillX, value = Bin(numBinsY, lowY, highY, fillY, value = Count())
-```
+Histogrammar will someday be available in popular repositories, such as Maven Central (for Java/Scala), PyPI (for Python), CRAN (for R), npm (for Javascript), etc. For now, use the [releases tab](http://github.com/diana-hep/histogrammar/releases) to get a fixed release or clone this repository to get the bleeding edge.
 
-This aggregator divides the space by binning in one continuous variable, `X`, and then further subdivides it by binning in `Y` Then it counts. The result is a two-dimensional histogram, like both of the following:
+[Installation instructions](http://histogrammar.org/docs/install.html) are available on the user documentation site.
 
-([left source: matplotlib](http://matplotlib.org/examples/pylab_examples/hist2d_log_demo.html)) ([right source: PAW](http://www.hepl.hiroshima-u.ac.jp/phx/sarupaw_html/hist.html))
+### The last word
 
-<img src="docs/wiki-images/two_dimensional.png" height="300px"> <img src="docs/wiki-images/lego_plot.png" height="300px">
-
-A so-called "profile plot" is a histogram in which each bin accumulates a mean and standard deviation, rather than a count. The Histogrammar primitive for mean and standard deviation is `Deviate`.
-
-```scala
-val profile = Bin(numBinsX, lowX, highX, fillRuleX, value = Deviate(fillRuleY))
-```
-
-([source: ROOT](https://root.cern.ch/root/htmldoc/guides/users-guide/ROOTUsersGuide.html))
-
-<img src="docs/wiki-images/profile_plot.png">
-
-The appropriate set of primitives can make short work of many common plot types. Most of these are often assembled by hand.
-
-```scala
-val efficiency = Fraction({mu: Muon => mu.passesTrigger}, Histogram(120, -2.4, 2.4, {mu: Muon => mu.eta})
-```
-
-([source: ROOT](http://www.phys.ufl.edu/~jlow/znunuHbbTriggerStudies/triggerobjects.html)) 
-
-<img src="docs/wiki-images/efficiency.png" width="400px">
-
-```scala
-val efficiency2d = Fraction({mu: Muon => mu.passesTrigger},
-                       Bin(100, -30, 30, {mu: Muon => mu.x}, value =
-                           Bin(100, -60, 60, {mu: Muon => mu.y}, value = Count())))
-```
-
-([source: PAW](https://userweb.jlab.org/~fomin/scin/))
-
-<img src="docs/wiki-images/efficiency_2d.png">
-
-Histogram bins turn a numerical feature into categories. But sometimes the data are already categorical.
-
-```scala
-val categorical_heatmap = Categorize({d: D => d.femaleReligion}, value =
-                              Categorize({d: D => d.maleReligion}, value = Count())
-```
-
-([source: plot.ly](http://help.plot.ly/make-a-heatmap/))
-
-<img src="docs/wiki-images/categorical.png">
-
-And that allows us to freely mix categorical and numerical aggregation.
-
-```scala
-val mixed = CategoricalStack(Histogram(140, 0, 140000, {d: D => d.salary}), {d: D => d.gender})
-```
-
-([source: SPSS](http://www.ibm.com/support/knowledgecenter/SSLVMB_20.0.0/com.ibm.spss.statistics.help/gpl_examples_barcharts_histogram_stack.htm))
-
-<img src="docs/wiki-images/stacked.png">
-
-It also lets us swap one binning strategy with another without affecting anything else in the hierarchy.
-
-  * **Bin:** user specifies number of bins, low edge, and high edge; bins are regularly spaced.
-  * **SparselyBin:** user specifies bin width; bins are filled when non-zero using a hash-map (still regularly spaced).
-  * **CentrallyBin:** user specifies bin centers, which may be irregularly spaced. Membership is determined by closest center, which makes histogramming a close analogue of clustering in one dimension.
-  * **AdaptivelyBin:** user specifies nothing; optimal bin placement is determined by a clustering algorithm.
-
-The last is particularly useful for exploratory analysis: you want to make a plot to understand the distribution of your data, but specifying bins relies on prior knowledge of that distribution. It is also an essential ingredient in estimating medians and quartiles for box-and-whiskers plots, or mini-histograms for violin plots.
-
-```scala
-val violin_box = Branch(Categorize({d: D => d.group}, value = AdaptivelyBin({d: D => d.value}),
-                        Categorize({d: D => d.group}, value = Quantile({d: D => d.value}))))
-```
-
-([source: R](http://stackoverflow.com/questions/27012500/how-to-align-violin-plots-with-boxplots))
-
-<img src="docs/wiki-images/violin_and_box.png">
-
-## Histogrammar does not produce graphics
-
-In the discussion above, I included plots from many different plotting packages. Histogrammar is not a plotting package: it aggregates data and passes the result to your favorite plotter. Usually, the aggregation step is more computationally expensive than plotting, so it's frustrating to have to repeat a time-consuming aggregation just to change a cosmetic aspect of a plot. Aggregation and graphics must be kept separate.
-
-Aggregation primitives are also easier to implement than graphics, so Histogrammar's core of primitives will be implemented in many different programming languages with a canonical JSON representation. A dataset aggregated in Scala can be plotted in Python. Most language-specific implementations recognize common patterns, such as bin-count being a one-dimensional histogram, to generate the appropriate plot.
-
-## Catalog of primitives
-
-**Zeroth kind:** primitives that ignore data and depend only on weights.
-
-  * [Count](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Count$): Count data, ignoring their content. (Actually a sum of weights.)
-
-**First kind:** primitives that aggregate a given scalar quantity, without sub-aggregators.
-
-  * [Sum](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Sum$): Accumulate the sum of a given quantity.
-  * [Average](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Average$): Accumulate the weighted mean of a given quantity.
-  * [Deviate](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Deviate$): Accumulate a weighted variance, mean, and total weight of a given quantity (using an algorithm that is stable for large numbers).
-  * [AbsoluteErr](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.AbsoluteErr$): Accumulate the weighted Mean Absolute Error (MAE) of a quantity whose nominal value is zero.
-  * [Minimize](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Minimize$): Find the minimum value of a given quantity. If no data are observed, the result is NaN.
-  * [Maximize](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Maximize$): Find the maximum value of a given quantity. If no data are observed, the result is NaN.
-  * [Quantile](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Quantile$): Estimate a quantile, such as 0.5 for median, (0.25, 0.75) for quartiles, or (0.2, 0.4, 0.6, 0.8) for quintiles.
-
-**Second kind:** primitives that group by a given scalar quantity, passing data to a sub-aggregator.
-
-  * [Bin](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Bin$): Split a given quantity into equally spaced bins between specified limits and fill only one bin per datum.
-  * [SparselyBin](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.SparselyBin$): Split a quantity into equally spaced bins, filling only one bin per datum and creating new bins as necessary.
-  * [CentrallyBin](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.CentrallyBin$): Split a quantity into bins defined by a set of bin centers, filling only one datum per bin with no overflows or underflows.
-  * [AdaptivelyBin](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.AdaptivelyBin$): Split a quanity into bins dynamically with a clustering algorithm, filling only one datum per bin with no overflows or underflows.
-  * [Categorize](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Categorize$): Split a given quantity by its categorical (string-based) value and fill only one category per datum.
-  * [Fraction](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Fraction$): Accumulate two containers, one with all data (denominator), and one with data that pass a given selection (numerator).
-  * [Stack](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Stack$): Accumulate a suite containers, filling all that are above a given cut on a given expression.
-  * [Partition](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Partition$): Accumulate a suite containers, filling the one that is between a pair of given cuts on a given expression.
-
-**Third kind:** primitives that act as containers, passing data to all sub-aggregators.
-
-  * [Select](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Select$): Accumulate an aggregator for data that satisfy a cut (or more generally, a weighting).
-  * [Limit](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Limit$): Accumulate an aggregator until its number of entries reaches a predefined limit.
-  * [Label](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Label$): Accumulate any number of containers of the SAME type and label them with strings. Every one is filled with every input datum.
-  * [UntypedLabel](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.UntypedLabel$): Accumulate containers of any type except Count and label them with strings. Every one is filled with every input datum.
-  * [Index](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Index$): Accumulate any number of containers of the SAME type anonymously in a list. Every one is filled with every input datum.
-  * [Branch](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Branch$): Accumulate containers of DIFFERENT types, indexed by i0 through i9. Every one is filled with every input datum.
-
-**Fourth kind:** primitives that collect sets of raw data.
-
-  * [Bag](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Bag$): Accumulate raw numbers, vectors of numbers, or strings, merging identical values.
-  * [Sample](http://histogrammar.org/scala/latest/index.html#org.dianahep.histogrammar.Sample$): Accumulate raw numbers, vectors of numbers, or strings that are an unbiased sample of the observed distribution.
-
-## Status
-
-Last released version was 0.6. The following refers to the git master branch.
-
-| Primitive              | Scala | Python (undocumented)  | C++     | CUDA    | R       | Javascript | SQL     |
-|:-----------------------|:------|:-----------------------|:--------|:--------|:--------|:-----------|:--------|
-| Count                  | done  | done                   | done    |         |         |            |         |
-| Sum                    | done  | done                   | done    |         |         |            |         |
-| Average                | done  | done                   |         |         |         |            |         |
-| Deviate                | done  | done                   |         |         |         |            |         |
-| AbsoluteErr            | done  | done                   |         |         |         |            |         |
-| Minimize               | done  | done                   |         |         |         |            |         |
-| Maximize               | done  | done                   |         |         |         |            |         |
-| Quantile               | done  | done                   |         |         |         |            |         |
-| Bin                    | done  | done                   | done    |         |         |            |         |
-| SparselyBin            | done  | done                   |         |         |         |            |         |
-| CentrallyBin           | done  | done                   |         |         |         |            |         |
-| AdaptivelyBin          | done  | done                   |         |         |         |            |         |
-| Categorize             | done  | done                   |         |         |         |            |         |
-| Fraction               | done  | done                   |         |         |         |            |         |
-| Stack                  | done  | done                   |         |         |         |            |         |
-| Partition              | done  | done                   |         |         |         |            |         |
-| Select                 | done  | done                   | done    |         |         |            |         |
-| Limit                  | done  | done                   |         |         |         |            |         |
-| Label                  | done  | done                   |         |         |         |            |         |
-| UntypedLabel           | done  | done                   |         |         |         |            |         |
-| Index                  | done  | done                   |         |         |         |            |         |
-| Branch                 | done  | done                   |         |         |         |            |         |
-| Bag                    | done  | done                   |         |         |         |            |         |
-| Sample                 | done  | done                   |         |         |         |            |         |
+Histogrammar is in an experimental state, with some features working and some basic features still in development. It is not analysis-ready, but will become so faster if users try it out on their pet projects and provide feedback. Please let us know if anything doesn't work or doesn't make sense!
