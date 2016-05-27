@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import types
+
 from histogrammar.defs import *
 from histogrammar.util import *
 from histogrammar.primitives.count import *
@@ -21,23 +23,11 @@ from histogrammar.primitives.count import *
 class Stack(Factory, Container):
     @staticmethod
     def ed(entries, *cuts):
-        if isinstance(entries, (int, long, float)):
-            if entries < 0.0:
-                raise ContainerException("entries ({}) cannot be negative".format(entries))
-            out = Stack(None, None, *cuts)
-            out.entries = float(entries)
-            return out
-
-        elif isinstance(entries, Container) and all(isinstance(x, Container) for x in cuts):
-            ys = [entries] + list(cuts)
-            entries = sum(y.entries for y in ys)
-            cuts = []
-            for i in xrange(len(ys)):
-                cuts.append((float("nan"), reduce(lambda a, b: a + b, ys[i:])))
-            return Stack.ed(entries, *cuts)
-
-        else:
-            raise TypeError("wrong arguments for Stack.ed")
+        if entries < 0.0:
+            raise ContainerException("entries ({}) cannot be negative".format(entries))
+        out = Stack(None, None, *cuts)
+        out.entries = float(entries)
+        return out
 
     @staticmethod
     def ing(quantity, value, *cuts):
@@ -51,6 +41,14 @@ class Stack(Factory, Container):
         else:
             self.cuts = tuple((float(x), value.zero()) for x in (float("-inf"),) + cuts)
         super(Stack, self).__init__()
+
+    @staticmethod
+    def build(*ys):
+        entries = sum(y.entries for y in ys)
+        cuts = []
+        for i in xrange(len(ys)):
+            cuts.append((float("nan"), reduce(lambda a, b: a + b, ys[i:])))
+        return Stack.ed(entries, *cuts)
 
     @property
     def thresholds(self): return [k for k, v in self.cuts]
