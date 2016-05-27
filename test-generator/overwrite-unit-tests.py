@@ -134,11 +134,16 @@ if __name__ == "__main__":
     purePython.append(sumStructString)
 
 
+################################################ Average
+
+    average            = PurePython("average",            "Average(lambda x: x)",           purePythonAutoAssertions)
+
+    for i in range(10):
+        result = mean(simple[:i+1])  
+	average.test( simple[i], "self.assertAlmostEqualJSON({}.toJson(), {})".format(PurePython.var, {"type": "Average", "data": {"entries": i+1, "mean": result}})) 
 
 
-
-
-
+    purePython.append(average)
 
     ################################################ <finalize>
 
